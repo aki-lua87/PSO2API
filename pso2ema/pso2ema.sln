@@ -1,9 +1,15 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
-VisualStudioVersion = 15.0.26430.16
+VisualStudioVersion = 15.0.26730.0
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "pso2ema", "pso2ema.csproj", "{62526A4D-2E82-4054-931F-28564724C04B}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PutDynamoDB", "PutDynamoDB\PutDynamoDB.csproj", "{7DD952B7-5F2E-4438-A97C-470CF08DB962}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GetDynamoDB", "GetDynamoDB\GetDynamoDB.csproj", "{EB819AD6-B1C7-4B48-B493-CCC603E5D94A}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "_consoltest", "_consoltest\_consoltest.csproj", "{28FB0C27-42D7-4B94-A176-A07938DC7B98}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FetchEmaList", "FetchEmaList\FetchEmaList.csproj", "{99ECB42B-7D40-48BC-9173-7921912FBA21}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -11,12 +17,27 @@ Global
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{62526A4D-2E82-4054-931F-28564724C04B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{62526A4D-2E82-4054-931F-28564724C04B}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{62526A4D-2E82-4054-931F-28564724C04B}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{62526A4D-2E82-4054-931F-28564724C04B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{7DD952B7-5F2E-4438-A97C-470CF08DB962}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7DD952B7-5F2E-4438-A97C-470CF08DB962}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7DD952B7-5F2E-4438-A97C-470CF08DB962}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7DD952B7-5F2E-4438-A97C-470CF08DB962}.Release|Any CPU.Build.0 = Release|Any CPU
+		{EB819AD6-B1C7-4B48-B493-CCC603E5D94A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{EB819AD6-B1C7-4B48-B493-CCC603E5D94A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{EB819AD6-B1C7-4B48-B493-CCC603E5D94A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{EB819AD6-B1C7-4B48-B493-CCC603E5D94A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{28FB0C27-42D7-4B94-A176-A07938DC7B98}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{28FB0C27-42D7-4B94-A176-A07938DC7B98}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{28FB0C27-42D7-4B94-A176-A07938DC7B98}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{28FB0C27-42D7-4B94-A176-A07938DC7B98}.Release|Any CPU.Build.0 = Release|Any CPU
+		{99ECB42B-7D40-48BC-9173-7921912FBA21}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{99ECB42B-7D40-48BC-9173-7921912FBA21}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{99ECB42B-7D40-48BC-9173-7921912FBA21}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{99ECB42B-7D40-48BC-9173-7921912FBA21}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {81A07B00-1271-4185-9490-DA277C2D3AAB}
 	EndGlobalSection
 EndGlobal
