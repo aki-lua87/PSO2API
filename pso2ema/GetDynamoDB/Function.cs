@@ -19,17 +19,20 @@ namespace GetDynamoDB
     {
         private static readonly AmazonDynamoDBClient Client = new AmazonDynamoDBClient(RegionEndpoint.APNortheast1);
 
-        public LambdaResponse FunctionHandler(string input, ILambdaContext context)
+        public TableValue[] FunctionHandler(string input, ILambdaContext context)
         {
             var dbContext = new DynamoDBContext(Client);
             var emaList = dbContext.QueryAsync<TableValue>(input).GetNextSetAsync().Result;
             var test = new List<TableValue>();
 
-            return new LambdaResponse
-            {
-                StatusCode = HttpStatusCode.OK,
-                EmaList = JsonConvert.SerializeObject(emaList)
-        };
+            TableValue[] emaArray =emaList.ToArray();
+
+            return emaArray; //new LambdaResponse
+            //{
+            //    // StatusCode = HttpStatusCode.OK,
+            //    // EmaList = JsonConvert.SerializeObject(emaArray)
+            //    EmaList = emaArray
+            //};
         }
     }
 
@@ -63,10 +66,10 @@ namespace GetDynamoDB
 
     public class LambdaResponse
     {
-        [JsonProperty(PropertyName = "statusCode")]
-        public HttpStatusCode StatusCode { get; set; }
+        //[JsonProperty(PropertyName = "statusCode")]
+        //public HttpStatusCode StatusCode { get; set; }
 
         [JsonProperty(PropertyName = "emajson")]
-        public string EmaList { get; set; }
+        public TableValue[] EmaList { get; set; }
     }
 }
