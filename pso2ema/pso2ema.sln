@@ -9,7 +9,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GetDynamoDB", "GetDynamoDB\
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "_consoltest", "_consoltest\_consoltest.csproj", "{28FB0C27-42D7-4B94-A176-A07938DC7B98}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FetchEmaList", "FetchEmaList\FetchEmaList.csproj", "{99ECB42B-7D40-48BC-9173-7921912FBA21}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PSO2emaAzureFunctions", "PSO2emaAzureFunctions\PSO2emaAzureFunctions.csproj", "{5B79F526-82B9-4DEB-A522-2DA67C3DF71D}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -29,10 +29,10 @@ Global
 		{28FB0C27-42D7-4B94-A176-A07938DC7B98}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{28FB0C27-42D7-4B94-A176-A07938DC7B98}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{28FB0C27-42D7-4B94-A176-A07938DC7B98}.Release|Any CPU.Build.0 = Release|Any CPU
-		{99ECB42B-7D40-48BC-9173-7921912FBA21}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{99ECB42B-7D40-48BC-9173-7921912FBA21}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{99ECB42B-7D40-48BC-9173-7921912FBA21}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{99ECB42B-7D40-48BC-9173-7921912FBA21}.Release|Any CPU.Build.0 = Release|Any CPU
+		{5B79F526-82B9-4DEB-A522-2DA67C3DF71D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5B79F526-82B9-4DEB-A522-2DA67C3DF71D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5B79F526-82B9-4DEB-A522-2DA67C3DF71D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5B79F526-82B9-4DEB-A522-2DA67C3DF71D}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
