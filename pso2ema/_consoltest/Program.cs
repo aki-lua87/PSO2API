@@ -1,7 +1,9 @@
 ﻿using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
+using System.Net;
 using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
@@ -63,9 +65,10 @@ namespace _consoltest
                             foreach (var n in name)
                             {
                                 // Console.WriteLine($"{n.InnerHtml}");
-                                value.Event = n.InnerHtml;
+                                value.EventName = n.InnerHtml;
                             }
-                            value.Key = $"{value.Month:00}{value.Date:00}{value.Hour:00}";
+                            value.Key = $"2017{value.Month:00}{value.Date:00}"; // 2017をどうにかする
+                            value.Rkey = $"{value.Hour}";　// mmはいる？
                             table.Add(value);
                         }
                     }
@@ -73,27 +76,44 @@ namespace _consoltest
             }
             var json = JsonConvert.SerializeObject(table);
             Console.WriteLine($"{json}");
+
+            var httpWebRequest = (HttpWebRequest)WebRequest.Create("https://uucn9ca6he.execute-api.ap-northeast-1.amazonaws.com/PSO2emaPut");
+            httpWebRequest.ContentType = "application/json";
+            httpWebRequest.Method = "POST";
+            httpWebRequest.Headers.Add("x-api-key", "6h1speyDY86CPxFt3t0ZT6kKvHSIn9lV51ydfmDd");
+
+            using (var streamWriter = new StreamWriter(httpWebRequest.GetRequestStream()))
+            {
+                streamWriter.Write(json);
+                streamWriter.Flush();
+                streamWriter.Close();
+            }
+            var httpResponse = (HttpWebResponse)httpWebRequest.GetResponse();
+            using (var streamReader = new StreamReader(httpResponse.GetResponseStream()))
+            {
+                var result = streamReader.ReadToEnd();
+                Console.WriteLine($"{result}");
+            }
         }
-    }
-    public class PostParam
-    {
-        public List<TableValue> table { get; set; }
-    }
-    public class TableValue
-    {
-        [JsonProperty(PropertyName = "key")]
-        public string Key { get; set; }
+        public class TableValue
+        {
+            [JsonProperty(PropertyName = "key")] // yyyymmdd
+            public string Key { get; set; }
 
-        [JsonProperty(PropertyName = "event")]
-        public string Event { get; set; }
+            [JsonProperty(PropertyName = "rkey")] //hhmm
+            public string Rkey { get; set; }
 
-        [JsonProperty(PropertyName = "month")]
-        public int Month { get; set; }
+            [JsonProperty(PropertyName = "evant")]
+            public string EventName { get; set; }
 
-        [JsonProperty(PropertyName = "date")]
-        public int Date { get; set; }
+            [JsonProperty(PropertyName = "month")]
+            public int Month { get; set; }
 
-        [JsonProperty(PropertyName = "hour")]
-        public int Hour { get; set; }
+            [JsonProperty(PropertyName = "date")]
+            public int Date { get; set; }
+
+            [JsonProperty(PropertyName = "hour")]
+            public int Hour { get; set; }
+        }
     }
 }

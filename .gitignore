@@ -288,3 +288,4 @@ __pycache__/
 *.xsd.cs
 pso2ema/GetDynamoDB/aws-lambda-tools-defaults.json
 pso2ema/PutDynamoDB/aws-lambda-tools-defaults.json
+pso2ema/PSO2emaAzureFunctions/local.settings.json

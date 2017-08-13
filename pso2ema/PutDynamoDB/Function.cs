@@ -22,8 +22,6 @@ namespace PutDynamoDB
 
         public LambdaResponse FunctionHandler(List<TableValue> input, ILambdaContext context)
         {
-            // Table table = Table.LoadTable(Client, tableName);
-
             var dbContext = new DynamoDBContext(Client);
 
             foreach (var v in input)
@@ -35,7 +33,7 @@ namespace PutDynamoDB
             return new LambdaResponse
             {
                 StatusCode = HttpStatusCode.OK,
-                Test = input[0].Event
+                Test = input[0].EventName
             };
         }
     }
@@ -44,12 +42,16 @@ namespace PutDynamoDB
     public class TableValue
     {
         [DynamoDBHashKey]
-        [JsonProperty(PropertyName = "key")]
+        [JsonProperty(PropertyName = "key")] // yyyymmdd
         public string Key { get; set; }
 
         [DynamoDBRangeKey]
-        [JsonProperty(PropertyName = "event")]
-        public string Event { get; set; }
+        [JsonProperty(PropertyName = "rkey")] //hhmm
+        public string Rkey { get; set; }
+
+        [DynamoDBProperty("EvantName")]
+        [JsonProperty(PropertyName = "evant")]
+        public string EventName { get; set; }
 
         [DynamoDBProperty("Month")]
         [JsonProperty(PropertyName = "month")]

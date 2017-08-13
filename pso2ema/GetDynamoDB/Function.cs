@@ -22,17 +22,13 @@ namespace GetDynamoDB
         public LambdaResponse FunctionHandler(string input, ILambdaContext context)
         {
             var dbContext = new DynamoDBContext(Client);
-            var emaList = dbContext.QueryAsync<TableValue>(input);
+            var emaList = dbContext.QueryAsync<TableValue>(input).GetNextSetAsync().Result;
             var test = new List<TableValue>();
-            while (!emaList.IsDone)
-            {
-                test.Add(emaList.GetNextSetAsync().Result[0]);
-            }
 
             return new LambdaResponse
             {
                 StatusCode = HttpStatusCode.OK,
-                EmaList = JsonConvert.SerializeObject(test)
+                EmaList = JsonConvert.SerializeObject(emaList)
         };
         }
     }
@@ -41,12 +37,16 @@ namespace GetDynamoDB
     public class TableValue
     {
         [DynamoDBHashKey]
-        [JsonProperty(PropertyName = "key")]
+        [JsonProperty(PropertyName = "key")] // yyyymmdd
         public string Key { get; set; }
 
         [DynamoDBRangeKey]
-        [JsonProperty(PropertyName = "event")]
-        public string Event { get; set; }
+        [JsonProperty(PropertyName = "rkey")] //hhmm
+        public string Rkey { get; set; }
+
+        [DynamoDBProperty("EvantName")]
+        [JsonProperty(PropertyName = "evant")]
+        public string EventName { get; set; }
 
         [DynamoDBProperty("Month")]
         [JsonProperty(PropertyName = "month")]
