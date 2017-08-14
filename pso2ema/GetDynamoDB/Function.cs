@@ -25,7 +25,7 @@ namespace GetDynamoDB
             var emaList = dbContext.QueryAsync<TableValue>(input).GetNextSetAsync().Result;
             var test = new List<TableValue>();
 
-            TableValue[] emaArray =emaList.ToArray();
+            TableValue[] emaArray =emaList.OrderBy(a => a.Hour).ToArray();
 
             return emaArray; //new LambdaResponse
             //{
