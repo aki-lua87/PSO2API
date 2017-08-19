@@ -1,9 +1,9 @@
 AzureFunctionsProgram
 
-Œö®ƒTƒCƒg‚ªXV‚³‚ê‚éƒ^ƒCƒ~ƒ“ƒO‚Å”­‰Î
+å…¬å¼ã‚µã‚¤ãƒˆãŒæ›´æ–°ã•ã‚Œã‚‹ã‚¿ã‚¤ãƒŸãƒ³ã‚°ã§ç™ºç«
 
-‹Ù‹}ƒNƒGƒXƒgî•ñ‚ğ‰ğÍ‚µ PutDynamoDB‚Ö“`‚¦‚é
+ç·Šæ€¥ã‚¯ã‚¨ã‚¹ãƒˆæƒ…å ±ã‚’è§£æã— PutDynamoDBã¸ä¼ãˆã‚‹
 
-### ƒ‰ƒCƒZƒ“ƒXî•ñ
-Html Agility Pack (http://html-agility-pack.net/)
+### ãƒ©ã‚¤ã‚»ãƒ³ã‚¹æƒ…å ±
+Html Agility Pack (http://html-agility-pack.net/) Â 
 MIT License
