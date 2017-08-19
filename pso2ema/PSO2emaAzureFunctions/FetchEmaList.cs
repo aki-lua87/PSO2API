@@ -14,22 +14,24 @@ namespace PSO2emaAzureFunctions
         [FunctionName("FetchEmaList")]
         public static void Run([TimerTrigger("0 */5 * * * *")]TimerInfo myTimer, TraceWriter log)
         {
-            string pso2_url = "http://pso2.jp/players/boost/";
-            string post_url = Environment.GetEnvironmentVariable("DBEndpointURL");
-            string api_key = Environment.GetEnvironmentVariable("ApiKey");
+            string pso2Url = "http://pso2.jp/players/boost/";
+            string postUrl = Environment.GetEnvironmentVariable("DBEndpointURL");
+            string apiKey = Environment.GetEnvironmentVariable("ApiKey");
 
-            log.Info($"url - {post_url}");
-            log.Info(api_key);
+            log.Info($"url - {postUrl}");
 
             var table = new List<TableValue>();
 
             
-            string html = (new HttpClient()).GetStringAsync(pso2_url).Result;
+            string html = (new HttpClient()).GetStringAsync(pso2Url).Result;
 
-            var doc = new HtmlAgilityPack.HtmlDocument();
-            doc.OptionAutoCloseOnEnd = false;
-            doc.OptionCheckSyntax = false;
-            doc.OptionFixNestedTags = true; 
+            var doc = new HtmlAgilityPack.HtmlDocument
+            {
+                OptionAutoCloseOnEnd = false,
+                OptionCheckSyntax = false,
+                OptionFixNestedTags = true
+            };
+
             doc.LoadHtml(html);
 
             HtmlAgilityPack.HtmlNodeCollection events = doc.DocumentNode.SelectNodes($"//div[@class='eventTable--event']");
@@ -39,13 +41,13 @@ namespace PSO2emaAzureFunctions
                 eveStr.LoadHtml(event_node.InnerHtml);
                 for (var i = 0; i < 24; i++)
                 {
-                    var timeTagStr = String.Format("{0:00}", i);
+                    var timeTagStr = $"{i:00}";
                     var nodes = eveStr.DocumentNode.SelectNodes($"//tr[@class='t{timeTagStr}m00']"); // t02m00
                     foreach (var node in nodes)
                     {
-                        var time_node = new HtmlAgilityPack.HtmlDocument();
-                        time_node.LoadHtml(node.InnerHtml);
-                        var emaList = time_node.DocumentNode.SelectNodes("//div[@class='cell-H01 cell-W01 event-emergency']");
+                        var timeNode = new HtmlAgilityPack.HtmlDocument();
+                        timeNode.LoadHtml(node.InnerHtml);
+                        var emaList = timeNode.DocumentNode.SelectNodes("//div[@class='cell-H01 cell-W01 event-emergency']");
                         if (emaList == null)
                         {
                             break;
@@ -82,10 +84,10 @@ namespace PSO2emaAzureFunctions
             var json = JsonConvert.SerializeObject(table);
             Console.WriteLine($"{json}");
 
-            var httpWebRequest = (HttpWebRequest)WebRequest.Create(post_url);
+            var httpWebRequest = (HttpWebRequest)WebRequest.Create(postUrl);
             httpWebRequest.ContentType = "application/json";
             httpWebRequest.Method = "POST";
-            httpWebRequest.Headers.Add("x-api-key", api_key);
+            httpWebRequest.Headers.Add("x-api-key", apiKey);
 
             using (var streamWriter = new StreamWriter(httpWebRequest.GetRequestStream()))
             {
