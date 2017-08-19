@@ -17,7 +17,7 @@ POST
 Content-Type: application/json
 ```
 
-### POST Data(Json)
+### POST Raw payload(Json)
 ```
 "YYYYMMDD"
 ```
@@ -25,7 +25,7 @@ Content-Type: application/json
 + example
 "20170809"
 
-### 返却データ
+### 返却データ(JSON)
 以下データの配列
 
 | Key | 説明 |型|
@@ -34,3 +34,9 @@ Content-Type: application/json
 | month     |      発生月 | 数値|
 | date     |      発生日 |数値 |
 | hour     |      発生時 |数値 |
+
++ example
+
+```
+[{"evant":"緊急クエスト１","month":8,"date":22,"hour":2},{"evant":"緊急クエスト２","month":8,"date":22,"hour":11},{"evant":"緊急クエスト１","month":8,"date":22,"hour":13},{"evant":"緊急クエスト３","month":8,"date":22,"hour":20},{"evant":"緊急クエスト４","month":8,"date":22,"hour":22}]
+```
