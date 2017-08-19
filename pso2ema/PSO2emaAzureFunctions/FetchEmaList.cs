@@ -14,8 +14,6 @@ namespace PSO2emaAzureFunctions
         [FunctionName("FetchEmaList")]
         public static void Run([TimerTrigger("0 */5 * * * *")]TimerInfo myTimer, TraceWriter log)
         {
-            log.Info("------------------C# HTTP trigger function processed a request.");
-
             string pso2_url = "http://pso2.jp/players/boost/";
             string post_url = Environment.GetEnvironmentVariable("DBEndpointURL");
             string api_key = Environment.GetEnvironmentVariable("ApiKey");
@@ -64,7 +62,6 @@ namespace PSO2emaAzureFunctions
                             var time = emaStr.DocumentNode.SelectNodes("//strong[@class='start']");
                             foreach (var t in time)
                             {
-                                // Console.WriteLine($"{t.InnerHtml} {timeTagStr}:00");
                                 var monthAndDate = t.InnerHtml.Split('/');
                                 value.Month = int.Parse(monthAndDate[0]);
                                 value.Date = int.Parse(monthAndDate[1]);
@@ -73,7 +70,6 @@ namespace PSO2emaAzureFunctions
                             var name = emaStr.DocumentNode.SelectNodes("//span");
                             foreach (var n in name)
                             {
-                                // Console.WriteLine($"{n.InnerHtml}");
                                 value.EventName = n.InnerHtml;
                             }
                             value.Key = $"2017{value.Month:00}{value.Date:00}"; // 2017‚ð‚Ç‚¤‚É‚©‚·‚é
