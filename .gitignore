@@ -289,3 +289,4 @@ __pycache__/
 pso2ema/GetDynamoDB/aws-lambda-tools-defaults.json
 pso2ema/PutDynamoDB/aws-lambda-tools-defaults.json
 pso2ema/PSO2emaAzureFunctions/local.settings.json
+pso2ema/_consoltest/
