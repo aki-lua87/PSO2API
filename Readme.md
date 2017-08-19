@@ -3,7 +3,7 @@
 ### URI
 
 ```
-https://kp822ivqfe.execute-api.ap-northeast-1.amazonaws.com/pso2emaget
+http://akakitune87.net/api/v1/pso2ema
 ```
 ### Method
 
@@ -23,7 +23,7 @@ Content-Type: application/json
 ```
 
 + example
-"20170809"
+"20170822"
 
 ### 返却データ(JSON)
 以下データの配列
