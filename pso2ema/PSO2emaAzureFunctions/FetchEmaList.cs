@@ -12,9 +12,9 @@ namespace PSO2emaAzureFunctions
     public static class FetchEmaList
     {
         [FunctionName("FetchEmaList")]
-        public static void Run([TimerTrigger("0 */5 * * * *")]TimerInfo myTimer, TraceWriter log)
+        public static void Run([TimerTrigger("0 30 7 * * 3")]TimerInfo myTimer, TraceWriter log)
         {
-            string pso2Url = "http://pso2.jp/players/boost/";
+            const string pso2Url = "http://pso2.jp/players/boost/";
             string postUrl = Environment.GetEnvironmentVariable("DBEndpointURL");
             string apiKey = Environment.GetEnvironmentVariable("ApiKey");
 
@@ -35,10 +35,10 @@ namespace PSO2emaAzureFunctions
             doc.LoadHtml(html);
 
             HtmlAgilityPack.HtmlNodeCollection events = doc.DocumentNode.SelectNodes($"//div[@class='eventTable--event']");
-            foreach (HtmlAgilityPack.HtmlNode event_node in events)
+            foreach (HtmlAgilityPack.HtmlNode eventNode in events)
             {
                 var eveStr = new HtmlAgilityPack.HtmlDocument();
-                eveStr.LoadHtml(event_node.InnerHtml);
+                eveStr.LoadHtml(eventNode.InnerHtml);
                 for (var i = 0; i < 24; i++)
                 {
                     var timeTagStr = $"{i:00}";
