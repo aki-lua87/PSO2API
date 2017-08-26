@@ -94,7 +94,7 @@ DBから情報を取得してクライアントに返します。
 API-GatewayとAWS Lambdaで成り立ってます。
 
 + URLを提供する層
-GAEにて動作。本ソースコードには含まれていない。
+GAEにて動作。本ソースコードには含まれていない。  
 
 ## LISENCE
 MIT License  
