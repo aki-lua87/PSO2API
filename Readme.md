@@ -1,7 +1,7 @@
 # PSO2緊急予告API
 
 ## APIの説明
-公式サイトの緊急予告を解析しAPIとして変換するプログラムです。
+公式サイトの緊急予告を解析しAPIとして変換するプログラムです。  
 毎週、水曜日の16:30(JST)頃に解析を行い、データを更新しています。
 
 ### URI
@@ -97,5 +97,5 @@ API-GatewayとAWS Lambdaで成り立ってます。
 GAEにて動作。本ソースコードには含まれていない。
 
 ## LISENCE
-MIT License
+MIT License  
 Copyright (c) 2017 aki_lua87
