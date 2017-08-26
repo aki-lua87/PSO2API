@@ -1,13 +1,15 @@
-## PSO2緊急予告API
+# PSO2緊急予告API
 
-### 軽い説明
-指定日の予告緊急についてデータ返却するAPIです。
+## APIの説明
+公式サイトの緊急予告を解析しAPIとして変換するプログラムです。
+毎週、水曜日の16:30(JST)頃に解析を行い、データを更新しています。
 
 ### URI
 
 ```
 http://akakitune87.net/api/v1/pso2ema
 ```
+
 ### Method
 
 ```
@@ -74,3 +76,26 @@ Content-Type: application/json
     }
 ]
 ```
+
+## プログラムの説明
+4つのモジュールから成り立ってます。
+
++ POS2emaAzureFuntions
+PSO2公式サイトのHTMLから緊急情報を抽出します。
+抽出した情報は「PutDynamoDB」モジュールヘ送られます。
+このプログラムはAzureFunctionsで動作します。
+
++ PutDynamoDB
+POS2emaAzureFuntionsからのデータを受け取りDBヘ保存する。
+API-GatewayとAWS Lambdaで成り立ってます。
+
++ GetDynamoDB
+DBから情報を取得してクライアントに返します。
+API-GatewayとAWS Lambdaで成り立ってます。
+
++ URLを提供する層
+GAEにて動作。本ソースコードには含まれていない。
+
+## LISENCE
+MIT License
+Copyright (c) 2017 aki_lua87
