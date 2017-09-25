@@ -7,7 +7,7 @@
 ### URI
 
 ```
-http://akakitune87.net/api/v1/pso2ema
+https://akakitune87.net/api/v1/pso2ema
 ```
 
 ### Method
