@@ -9,7 +9,7 @@
 ### URI
 
 ```
-https://akakitune87.net/api/v1/pso2ema
+https://akakitune87.net/api/v2/pso2ema
 ```
 
 ### Method
@@ -41,6 +41,7 @@ Content-Type: application/json
 | month     |      発生月 | 数値|
 | date     |      発生日 |数値 |
 | hour     |      発生時 |数値 |
+| minute     |      発生分 |数値 |
 
 + example
 
@@ -50,31 +51,36 @@ Content-Type: application/json
         "evant": "緊急クエスト１",
         "month": 8,
         "date": 22,
-        "hour": 2
+        "hour": 2,
+		"minute": 0
     },
     {
         "evant": "緊急クエスト２",
         "month": 8,
         "date": 22,
-        "hour": 11
+        "hour": 11,
+		"minute": 0
     },
     {
-        "evant": "緊急クエスト１",
+        "evant": "ライブ",
         "month": 8,
         "date": 22,
-        "hour": 13
+        "hour": 13,
+		"minute": 0
     },
     {
         "evant": "緊急クエスト３",
         "month": 8,
         "date": 22,
-        "hour": 20
+        "hour": 13,
+		"minute": 30
     },
     {
-        "evant": "緊急クエスト４",
+        "evant": "緊急クエスト２",
         "month": 8,
         "date": 22,
-        "hour": 22
+        "hour": 22,
+		"minute": 0
     }
 ]
 ```
