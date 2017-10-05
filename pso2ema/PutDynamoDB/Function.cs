@@ -64,6 +64,10 @@ namespace PutDynamoDB
         [DynamoDBProperty("Hour")]
         [JsonProperty(PropertyName = "hour")]
         public int Hour { get; set; }
+
+        [DynamoDBProperty("Minute")]
+        [JsonProperty(PropertyName = "minute")]
+        public int Min { get; set; }
     }
 
     public class LambdaResponse
