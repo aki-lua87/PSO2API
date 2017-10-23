@@ -43,9 +43,9 @@ namespace PSO2emaAzureFunctions
                 for (var i = 0; i < 24; i++)
                 {
                     var timeTagStr = $"{i:00}";
-                    var nodes = eveStr.DocumentNode.SelectNodes($"//tr[@class='t{timeTagStr}m00']"); // t02m00
-                    var nodes30 = eveStr.DocumentNode.SelectNodes($"//tr[@class='t{timeTagStr}m30']"); // t02m30
+
                     // 00の処理
+                    var nodes = eveStr.DocumentNode.SelectNodes($"//tr[@class='t{timeTagStr}m00']"); // t02m00
                     foreach (var node in nodes)
                     {
                         var timeNode = new HtmlAgilityPack.HtmlDocument();
@@ -54,74 +54,69 @@ namespace PSO2emaAzureFunctions
                         var liveList = timeNode.DocumentNode.SelectNodes("//div[@class='cell-H01 cell-W01 event-live']");
 
                         // 緊急の処理
-                        if (emaList == null)
+                        if (emaList != null)
                         {
-                            break;
-                        }
-
-                        foreach (var ema in emaList)
-                        {
-                            var value = new TableValue();
-                            value.Hour = i;
-                            value.Min = 0;
-
-                            HtmlAgilityPack.HtmlDocument emaStr = new HtmlAgilityPack.HtmlDocument();
-                            emaStr.LoadHtml(ema.InnerHtml);
-
-                            var time = emaStr.DocumentNode.SelectNodes("//strong[@class='start']");
-                            foreach (var t in time)
+                            foreach (var ema in emaList)
                             {
-                                var monthAndDate = t.InnerHtml.Split('/');
-                                value.Month = int.Parse(monthAndDate[0]);
-                                value.Date = int.Parse(monthAndDate[1]);
-                            }
+                                var value = new TableValue();
+                                value.Hour = i;
+                                value.Min = 0;
 
-                            var name = emaStr.DocumentNode.SelectNodes("//span");
-                            foreach (var n in name)
-                            {
-                                value.EventName = n.InnerHtml;
+                                HtmlAgilityPack.HtmlDocument emaStr = new HtmlAgilityPack.HtmlDocument();
+                                emaStr.LoadHtml(ema.InnerHtml);
+
+                                var time = emaStr.DocumentNode.SelectNodes("//strong[@class='start']");
+                                foreach (var t in time)
+                                {
+                                    var monthAndDate = t.InnerHtml.Split('/');
+                                    value.Month = int.Parse(monthAndDate[0]);
+                                    value.Date = int.Parse(monthAndDate[1]);
+                                }
+
+                                var name = emaStr.DocumentNode.SelectNodes("//span");
+                                foreach (var n in name)
+                                {
+                                    value.EventName = n.InnerHtml;
+                                }
+                                value.Key = $"2017{value.Month:00}{value.Date:00}"; // 2017をどうにかする
+                                value.Rkey = $"{value.Hour:00}{value.Min:00}"; // mmはいる？
+                                table.Add(value);
                             }
-                            value.Key = $"2017{value.Month:00}{value.Date:00}"; // 2017をどうにかする
-                            value.Rkey = $"{value.Hour:00}{value.Min:00}";　// mmはいる？
-                            table.Add(value);
                         }
-
                         // ライブの処理
-                        if (liveList == null)
+                        if (liveList != null)
                         {
-                            break;
-                        }
-
-                        foreach (var live in liveList)
-                        {
-                            var value = new TableValue();
-                            value.Hour = i;
-                            value.Min = 0;
-
-                            HtmlAgilityPack.HtmlDocument emaStr = new HtmlAgilityPack.HtmlDocument();
-                            emaStr.LoadHtml(live.InnerHtml);
-
-                            var time = emaStr.DocumentNode.SelectNodes("//strong[@class='start']");
-                            foreach (var t in time)
+                            foreach (var live in liveList)
                             {
-                                var monthAndDate = t.InnerHtml.Split('/');
-                                value.Month = int.Parse(monthAndDate[0]);
-                                value.Date = int.Parse(monthAndDate[1]);
-                            }
+                                var value = new TableValue();
+                                value.Hour = i;
+                                value.Min = 0;
 
-                            var name = emaStr.DocumentNode.SelectNodes("//span");
-                            foreach (var n in name)
-                            {
-                                value.EventName = n.InnerHtml;
+                                HtmlAgilityPack.HtmlDocument emaStr = new HtmlAgilityPack.HtmlDocument();
+                                emaStr.LoadHtml(live.InnerHtml);
+
+                                var time = emaStr.DocumentNode.SelectNodes("//strong[@class='start']");
+                                foreach (var t in time)
+                                {
+                                    var monthAndDate = t.InnerHtml.Split('/');
+                                    value.Month = int.Parse(monthAndDate[0]);
+                                    value.Date = int.Parse(monthAndDate[1]);
+                                }
+
+                                var name = emaStr.DocumentNode.SelectNodes("//span");
+                                foreach (var n in name)
+                                {
+                                    value.EventName = n.InnerHtml;
+                                }
+                                value.Key = $"2017{value.Month:00}{value.Date:00}"; // 2017をどうにかする
+                                value.Rkey = $"{value.Hour:00}{value.Min:00}"; // mmはいる？
+                                table.Add(value);
                             }
-                            value.Key = $"2017{value.Month:00}{value.Date:00}"; // 2017をどうにかする
-                            value.Rkey = $"{value.Hour:00}{value.Min:00}";　// mmはいる？
-                            table.Add(value);
                         }
-
                     }
 
                     // 30の処理
+                    var nodes30 = eveStr.DocumentNode.SelectNodes($"//tr[@class='t{timeTagStr}m30']"); // t02m30
                     foreach (var node30 in nodes30)
                     {
                         var timeNode = new HtmlAgilityPack.HtmlDocument();
@@ -130,77 +125,70 @@ namespace PSO2emaAzureFunctions
                         var liveList = timeNode.DocumentNode.SelectNodes("//div[@class='cell-H01 cell-W01 event-live']");
 
                         // 緊急の処理
-                        if (emaList == null)
+                        if (emaList != null)
                         {
-                            break;
-                        }
-
-                        foreach (var ema in emaList)
-                        {
-                            var value = new TableValue();
-                            value.Hour = i;
-                            value.Min = 30;
-
-                            HtmlAgilityPack.HtmlDocument emaStr = new HtmlAgilityPack.HtmlDocument();
-                            emaStr.LoadHtml(ema.InnerHtml);
-
-                            var time = emaStr.DocumentNode.SelectNodes("//strong[@class='start']");
-                            foreach (var t in time)
+                            foreach (var ema in emaList)
                             {
-                                var monthAndDate = t.InnerHtml.Split('/');
-                                value.Month = int.Parse(monthAndDate[0]);
-                                value.Date = int.Parse(monthAndDate[1]);
-                            }
+                                var value = new TableValue();
+                                value.Hour = i;
+                                value.Min = 30;
 
-                            var name = emaStr.DocumentNode.SelectNodes("//span");
-                            foreach (var n in name)
-                            {
-                                value.EventName = n.InnerHtml;
+                                HtmlAgilityPack.HtmlDocument emaStr = new HtmlAgilityPack.HtmlDocument();
+                                emaStr.LoadHtml(ema.InnerHtml);
+
+                                var time = emaStr.DocumentNode.SelectNodes("//strong[@class='start']");
+                                foreach (var t in time)
+                                {
+                                    var monthAndDate = t.InnerHtml.Split('/');
+                                    value.Month = int.Parse(monthAndDate[0]);
+                                    value.Date = int.Parse(monthAndDate[1]);
+                                }
+
+                                var name = emaStr.DocumentNode.SelectNodes("//span");
+                                foreach (var n in name)
+                                {
+                                    value.EventName = n.InnerHtml;
+                                }
+                                value.Key = $"2017{value.Month:00}{value.Date:00}"; // 2017をどうにかする
+                                value.Rkey = $"{value.Hour:00}{value.Min:00}"; // mmはいる？
+                                table.Add(value);
                             }
-                            value.Key = $"2017{value.Month:00}{value.Date:00}"; // 2017をどうにかする
-                            value.Rkey = $"{value.Hour:00}{value.Min:00}";　// mmはいる？
-                            table.Add(value);
                         }
-
                         // ライブの処理
-                        if (liveList == null)
+                        if (liveList != null)
                         {
-                            break;
-                        }
-
-                        foreach (var live in liveList)
-                        {
-                            var value = new TableValue();
-                            value.Hour = i;
-                            value.Min = 30;
-
-                            HtmlAgilityPack.HtmlDocument emaStr = new HtmlAgilityPack.HtmlDocument();
-                            emaStr.LoadHtml(live.InnerHtml);
-
-                            var time = emaStr.DocumentNode.SelectNodes("//strong[@class='start']");
-                            foreach (var t in time)
+                            foreach (var live in liveList)
                             {
-                                var monthAndDate = t.InnerHtml.Split('/');
-                                value.Month = int.Parse(monthAndDate[0]);
-                                value.Date = int.Parse(monthAndDate[1]);
-                            }
+                                var value = new TableValue();
+                                value.Hour = i;
+                                value.Min = 30;
 
-                            var name = emaStr.DocumentNode.SelectNodes("//span");
-                            foreach (var n in name)
-                            {
-                                value.EventName = n.InnerHtml;
+                                HtmlAgilityPack.HtmlDocument emaStr = new HtmlAgilityPack.HtmlDocument();
+                                emaStr.LoadHtml(live.InnerHtml);
+
+                                var time = emaStr.DocumentNode.SelectNodes("//strong[@class='start']");
+                                foreach (var t in time)
+                                {
+                                    var monthAndDate = t.InnerHtml.Split('/');
+                                    value.Month = int.Parse(monthAndDate[0]);
+                                    value.Date = int.Parse(monthAndDate[1]);
+                                }
+
+                                var name = emaStr.DocumentNode.SelectNodes("//span");
+                                foreach (var n in name)
+                                {
+                                    value.EventName = n.InnerHtml;
+                                }
+                                value.Key = $"2017{value.Month:00}{value.Date:00}"; // 2017をどうにかする
+                                value.Rkey = $"{value.Hour:00}{value.Min:00}";
+                                table.Add(value);
                             }
-                            value.Key = $"2017{value.Month:00}{value.Date:00}"; // 2017をどうにかする
-                            value.Rkey = $"{value.Hour:00}{value.Min:00}";
-                            table.Add(value);
                         }
-
                     }
                 }
-
-                
-
             }
+
+            // リクエスト作成
             var json = JsonConvert.SerializeObject(table);
             Console.WriteLine($"{json}");
 
@@ -222,6 +210,8 @@ namespace PSO2emaAzureFunctions
                 Console.WriteLine($"{result}");
             }
         }
+
+        // リクエストJson用クラス
         public class TableValue
         {
             [JsonProperty(PropertyName = "key")] // yyyymmdd
