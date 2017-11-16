@@ -19,7 +19,7 @@ namespace PSO2emaAzureFunctions
             string apiKey = Environment.GetEnvironmentVariable("ApiKey");
 
             log.Info($"url - {postUrl}");
-            log.Info($"API Ver.2.0");
+            log.Info($"API Ver.2.1");
 
             var table = new List<TableValue>();
 
@@ -46,17 +46,49 @@ namespace PSO2emaAzureFunctions
 
                     // 00の処理
                     var nodes = eveStr.DocumentNode.SelectNodes($"//tr[@class='t{timeTagStr}m00']"); // t02m00
+                    log.Info($"{i}:00");
                     foreach (var node in nodes)
                     {
                         var timeNode = new HtmlAgilityPack.HtmlDocument();
                         timeNode.LoadHtml(node.InnerHtml);
                         var emaList = timeNode.DocumentNode.SelectNodes("//div[@class='cell-H01 cell-W01 event-emergency']");
+                        var emaListHarf = timeNode.DocumentNode.SelectNodes("//div[@class='cell-H01 cell-W02 event-emergency']");
                         var liveList = timeNode.DocumentNode.SelectNodes("//div[@class='cell-H01 cell-W01 event-live']");
 
                         // 緊急の処理
                         if (emaList != null)
                         {
                             foreach (var ema in emaList)
+                            {
+                                var value = new TableValue();
+                                value.Hour = i;
+                                value.Min = 0;
+
+                                HtmlAgilityPack.HtmlDocument emaStr = new HtmlAgilityPack.HtmlDocument();
+                                emaStr.LoadHtml(ema.InnerHtml);
+
+                                var time = emaStr.DocumentNode.SelectNodes("//strong[@class='start']");
+                                foreach (var t in time)
+                                {
+                                    var monthAndDate = t.InnerHtml.Split('/');
+                                    value.Month = int.Parse(monthAndDate[0]);
+                                    value.Date = int.Parse(monthAndDate[1]);
+                                }
+
+                                var name = emaStr.DocumentNode.SelectNodes("//span");
+                                foreach (var n in name)
+                                {
+                                    value.EventName = n.InnerHtml;
+                                }
+                                value.Key = $"2017{value.Month:00}{value.Date:00}"; // 2017をどうにかする
+                                value.Rkey = $"{value.Hour:00}{value.Min:00}"; // mmはいる？
+                                table.Add(value);
+                            }
+                        }
+                        // なんか他のと被ってる緊急
+                        if (emaListHarf != null)
+                        {
+                            foreach (var ema in emaListHarf)
                             {
                                 var value = new TableValue();
                                 value.Hour = i;
@@ -117,17 +149,49 @@ namespace PSO2emaAzureFunctions
 
                     // 30の処理
                     var nodes30 = eveStr.DocumentNode.SelectNodes($"//tr[@class='t{timeTagStr}m30']"); // t02m30
+                    log.Info($"{i}:30");
                     foreach (var node30 in nodes30)
                     {
                         var timeNode = new HtmlAgilityPack.HtmlDocument();
                         timeNode.LoadHtml(node30.InnerHtml);
                         var emaList = timeNode.DocumentNode.SelectNodes("//div[@class='cell-H01 cell-W01 event-emergency']");
+                        var emaListHarf = timeNode.DocumentNode.SelectNodes("//div[@class='cell-H01 cell-W02 event-emergency']");
                         var liveList = timeNode.DocumentNode.SelectNodes("//div[@class='cell-H01 cell-W01 event-live']");
 
                         // 緊急の処理
                         if (emaList != null)
                         {
                             foreach (var ema in emaList)
+                            {
+                                var value = new TableValue();
+                                value.Hour = i;
+                                value.Min = 30;
+
+                                HtmlAgilityPack.HtmlDocument emaStr = new HtmlAgilityPack.HtmlDocument();
+                                emaStr.LoadHtml(ema.InnerHtml);
+
+                                var time = emaStr.DocumentNode.SelectNodes("//strong[@class='start']");
+                                foreach (var t in time)
+                                {
+                                    var monthAndDate = t.InnerHtml.Split('/');
+                                    value.Month = int.Parse(monthAndDate[0]);
+                                    value.Date = int.Parse(monthAndDate[1]);
+                                }
+
+                                var name = emaStr.DocumentNode.SelectNodes("//span");
+                                foreach (var n in name)
+                                {
+                                    value.EventName = n.InnerHtml;
+                                }
+                                value.Key = $"2017{value.Month:00}{value.Date:00}"; // 2017をどうにかする
+                                value.Rkey = $"{value.Hour:00}{value.Min:00}"; // mmはいる？
+                                table.Add(value);
+                            }
+                        }
+                        // なんか他のと被ってる緊急
+                        if (emaListHarf != null)
+                        {
+                            foreach (var ema in emaListHarf)
                             {
                                 var value = new TableValue();
                                 value.Hour = i;
@@ -190,7 +254,6 @@ namespace PSO2emaAzureFunctions
 
             // リクエスト作成
             var json = JsonConvert.SerializeObject(table);
-            Console.WriteLine($"{json}");
 
             var httpWebRequest = (HttpWebRequest)WebRequest.Create(postUrl);
             httpWebRequest.ContentType = "application/json";
@@ -207,8 +270,8 @@ namespace PSO2emaAzureFunctions
             using (var streamReader = new StreamReader(httpResponse.GetResponseStream()))
             {
                 var result = streamReader.ReadToEnd();
-                Console.WriteLine($"{result}");
             }
+            log.Info($"Success");
         }
 
         // リクエストJson用クラス
