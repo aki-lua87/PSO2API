@@ -136,7 +136,7 @@ namespace PSO2emaAzureFunctions
                     var emagValue = new EmagTableValue
                     {
                         Hour = hour,
-                        Min = minute,
+                        Minute = minute,
                         EventType = eventName
                     };
 
@@ -162,7 +162,7 @@ namespace PSO2emaAzureFunctions
                     }
                     _log.Info("Nest3 Debug3");
                     emagValue.Key = $"{NowYear}{emagValue.Month:00}{emagValue.Date:00}"; // 2017をどうにかする
-                    emagValue.Rkey = $"{emagValue.Hour:00}{emagValue.Min:00}";
+                    emagValue.Rkey = $"{emagValue.Hour:00}{emagValue.Minute:00}{eventName}";
                     _table.Add(emagValue);
                 }
                 _log.Info("Excec Nest3 End");
@@ -204,10 +204,10 @@ namespace PSO2emaAzureFunctions
         // リクエストJson用クラス
         public class EmagTableValue
         {
-            [JsonProperty(PropertyName = "Key")] // yyyymmdd
+            [JsonProperty(PropertyName = "Key")] // yyyymmddhhmm
             public string Key { get; set; }
 
-            [JsonProperty(PropertyName = "RKey")] //hh
+            [JsonProperty(PropertyName = "RKey")] // hhmmEvent
             public string Rkey { get; set; }
 
             [JsonProperty(PropertyName = "EventName")]
@@ -226,7 +226,7 @@ namespace PSO2emaAzureFunctions
             public int Hour { get; set; }
 
             [JsonProperty(PropertyName = "Minute")]
-            public int Min { get; set; }
+            public int Minute { get; set; }
         }
     }
 }

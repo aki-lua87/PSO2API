@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
-VisualStudioVersion = 15.0.27004.2008
+VisualStudioVersion = 15.0.27004.2010
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PutDynamoDB", "PutDynamoDB\PutDynamoDB.csproj", "{7DD952B7-5F2E-4438-A97C-470CF08DB962}"
 EndProject
@@ -19,6 +19,16 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Azure", "Azure", "{0D10E477-2D13-42D3-9EA8-0C6EC29E70F2}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "AWS", "AWS", "{9E6270EA-559D-4DC5-A547-1CD4B4D872A6}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "APIConversion", "APIConversion", "{B36CE2FA-48F9-4C63-93CE-CBBFBB4EF46A}"
+	ProjectSection(SolutionItems) = preProject
+		APIConversion\api.go = APIConversion\api.go
+		APIConversion\cron.go = APIConversion\cron.go
+		APIConversion\html.go = APIConversion\html.go
+		APIConversion\model.go = APIConversion\model.go
+		APIConversion\pso2_test.go = APIConversion\pso2_test.go
+		APIConversion\view.go = APIConversion\view.go
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

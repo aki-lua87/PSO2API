@@ -31,7 +31,7 @@ namespace GetDynamoDB
     }
 
     [DynamoDBTable("PSO2ema")]
-    public class TableValue
+    public class TableValue // JSONをアッパーキャメルケースにしたい
     {
         [DynamoDBHashKey]
         [JsonIgnore]
@@ -44,6 +44,10 @@ namespace GetDynamoDB
         [DynamoDBProperty("EvantName")]
         [JsonProperty(PropertyName = "evant")]
         public string EventName { get; set; }
+
+        [DynamoDBProperty("EvantType")]
+        [JsonProperty(PropertyName = "eventType")]
+        public string EventType { get; set; }
 
         [DynamoDBProperty("Month")]
         [JsonProperty(PropertyName = "month")]
