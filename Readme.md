@@ -3,12 +3,13 @@
 ## APIの説明
 公式サイトの緊急予告を解析しAPIとして変換するプログラムです。  
 毎週、水曜日の16:30(JST)頃に解析を行い、データを更新しています。  
- 
+
+現在対応しているイベントは"緊急クエスト","ライブ","カジノイベント"です。  
 
 ### URI
 
 ```
-https://akakitune87.net/api/v2/pso2ema
+https://akakitune87.net/api/v3/pso2ema
 ```
 
 ### Method
@@ -25,18 +26,25 @@ Content-Type: application/json
 
 ### POST Raw payload(Json)
 ```
-"YYYYMMDD"
+{
+  "EvantDate":"YYYYMMDD",
+  "EventType":"イベント種別"(指定しない場合はすべてのイベントを取得)
+}
 ```
 
 + example
-"20170822"
+{
+  "EvantDate":"20171201",
+  "EventType":"緊急"
+}
 
 ### 返却データ(JSON)
 以下データの配列
 
 | Key | 説明 |型|
 |-----------|------------|-------|
-| evant       |  緊急クエスト名 |文字列|
+| evant       |  イベント名 |文字列|
+| evantType    |  イベント種別 |文字列|
 | month     |      発生月 | 数値|
 | date     |      発生日 |数値 |
 | hour     |      発生時 |数値 |
@@ -44,35 +52,40 @@ Content-Type: application/json
 
 + example
 
+指定なしの場合
 ```
 [
     {
         "evant": "緊急クエスト１",
+		"eventType": "緊急",
         "month": 8,
         "date": 22,
         "hour": 2,
 		"minute": 0
     },
+	{
+        "evant": "ライブ",
+		"eventType": "ライブ",
+        "month": 8,
+        "date": 22,
+        "hour": 11,
+		"minute": 30
+    },
     {
         "evant": "緊急クエスト２",
+		"eventType": "緊急",
         "month": 8,
         "date": 22,
         "hour": 11,
 		"minute": 0
     },
     {
-        "evant": "ライブ",
+        "evant": "カジノイベント",
+		"eventType": "カジノイベント",
         "month": 8,
         "date": 22,
-        "hour": 13,
+        "hour": 22,
 		"minute": 0
-    },
-    {
-        "evant": "緊急クエスト３",
-        "month": 8,
-        "date": 22,
-        "hour": 13,
-		"minute": 30
     },
     {
         "evant": "緊急クエスト２",
@@ -84,24 +97,34 @@ Content-Type: application/json
 ]
 ```
 
-## プログラムの説明
-4つのモジュールから成り立ってます。
-
-+ POS2emaAzureFuntions
-PSO2公式サイトのHTMLから緊急情報を抽出します。
-抽出した情報は「PutDynamoDB」モジュールヘ送られます。
-このプログラムはAzureFunctionsで動作します。
-
-+ PutDynamoDB
-POS2emaAzureFuntionsからのデータを受け取りDBヘ保存する。
-API-GatewayとAWS Lambdaで成り立ってます。
-
-+ GetDynamoDB
-DBから情報を取得してクライアントに返します。
-API-GatewayとAWS Lambdaで成り立ってます。
-
-+ URLを提供する層
-GAEにて動作。本ソースコードには含まれていない。  
+EventType = "緊急"
+```
+[
+    {
+        "evant": "緊急クエスト１",
+		"eventType": "緊急",
+        "month": 8,
+        "date": 22,
+        "hour": 2,
+		"minute": 0
+    },
+    {
+        "evant": "緊急クエスト２",
+		"eventType": "緊急",
+        "month": 8,
+        "date": 22,
+        "hour": 11,
+		"minute": 0
+    },
+    {
+        "evant": "緊急クエスト２",
+        "month": 8,
+        "date": 22,
+        "hour": 22,
+		"minute": 0
+    }
+]
+```
 
 ## LISENCE
 MIT License  

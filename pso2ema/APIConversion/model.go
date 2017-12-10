@@ -116,6 +116,7 @@ func GetEmaListV2(r *http.Request, getKey string) []EmaListV2 {
 	return emaList
 }
 
+// リフレクションで各ヴァージョンに対応したい
 func CnvEmaList(emaList []EmaListV2) []string {
 	var emaListStr []string
 	for _, v := range emaList {
