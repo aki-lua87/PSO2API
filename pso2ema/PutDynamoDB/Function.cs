@@ -33,7 +33,7 @@ namespace PutDynamoDB
             return new LambdaResponse
             {
                 StatusCode = HttpStatusCode.OK,
-                Test = input[0].EventName
+                Test = input[0].EventName + "test param OK"
             };
         }
     }
@@ -42,31 +42,35 @@ namespace PutDynamoDB
     public class TableValue
     {
         [DynamoDBHashKey]
-        [JsonProperty(PropertyName = "key")] // yyyymmdd
+        [JsonProperty(PropertyName = "Key")] // yyyymmdd
         public string Key { get; set; }
 
         [DynamoDBRangeKey]
-        [JsonProperty(PropertyName = "rkey")] //hhmm
+        [JsonProperty(PropertyName = "RKey")] //hhmm
         public string Rkey { get; set; }
 
         [DynamoDBProperty("EvantName")]
-        [JsonProperty(PropertyName = "evant")]
+        [JsonProperty(PropertyName = "EventName")]
         public string EventName { get; set; }
 
+        [DynamoDBProperty("EvantType")]
+        [JsonProperty(PropertyName = "EventType")]
+        public string EventType { get; set; }
+
         [DynamoDBProperty("Month")]
-        [JsonProperty(PropertyName = "month")]
+        [JsonProperty(PropertyName = "Month")]
         public int Month { get; set; }
 
         [DynamoDBProperty("Date")]
-        [JsonProperty(PropertyName = "date")]
+        [JsonProperty(PropertyName = "Date")]
         public int Date { get; set; }
 
         [DynamoDBProperty("Hour")]
-        [JsonProperty(PropertyName = "hour")]
+        [JsonProperty(PropertyName = "Hour")]
         public int Hour { get; set; }
 
         [DynamoDBProperty("Minute")]
-        [JsonProperty(PropertyName = "minute")]
+        [JsonProperty(PropertyName = "Minute")]
         public int Min { get; set; }
     }
 

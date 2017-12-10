@@ -24,21 +24,19 @@ namespace GetDynamoDB
             var dbContext = new DynamoDBContext(Client);
             var emaList = dbContext.QueryAsync<TableValue>(input).GetNextSetAsync().Result;
 
-            TableValue[] emaArray =emaList.OrderBy(a => a.Hour).ToArray();
+            var emaArray =emaList.OrderBy(a => a.Hour).ToArray();
 
             return emaArray;
         }
     }
 
     [DynamoDBTable("PSO2ema")]
-    public class TableValue
+    public class TableValue // JSONをアッパーキャメルケースにしたい
     {
-        // [JsonProperty(PropertyName = "key")] // yyyymmdd
         [DynamoDBHashKey]
         [JsonIgnore]
         public string Key { get; set; }
 
-        // [JsonProperty(PropertyName = "rkey")] //hhmm
         [DynamoDBRangeKey]
         [JsonIgnore]
         public string Rkey { get; set; }
@@ -46,6 +44,10 @@ namespace GetDynamoDB
         [DynamoDBProperty("EvantName")]
         [JsonProperty(PropertyName = "evant")]
         public string EventName { get; set; }
+
+        [DynamoDBProperty("EvantType")]
+        [JsonProperty(PropertyName = "eventType")]
+        public string EventType { get; set; }
 
         [DynamoDBProperty("Month")]
         [JsonProperty(PropertyName = "month")]
