@@ -13,25 +13,30 @@ namespace PSO2emaAzureFunctions
 {
     public static class FetchEmaList
     {
-        const string pso2Url = "http://pso2.jp/players/boost/";
+        const string pso2Url = "https://pso2.jp/players/boost/";
         const int NowYear = 2017;
 
         // 水曜16：30(JST)に実行
         [FunctionName("FetchEmaList")]
         public static void Run([TimerTrigger("0 30 7 * * 3")]TimerInfo myTimer, TraceWriter log)
         {
-            log.Info("Exec Start");
-
+            log.Info("Function Start");
+            
             // LambdaのURL
             string postUrl = Environment.GetEnvironmentVariable("DBEndpointURL");
             // LambdaのAPIキー
             string apiKey = Environment.GetEnvironmentVariable("ApiKey");
 
+            string DebugFlag = Environment.GetEnvironmentVariable("DebugFlag");
+            log.Info($"Debug {DebugFlag}");
+
             log.Info($"url - {postUrl}");
             log.Info($"API Ver.2.1");
 
             // 全HTMLを読み込み
+            log.Info($"Request for {pso2Url}");
             string html = (new HttpClient()).GetStringAsync(pso2Url).Result;
+            log.Info($"Get html");
 
             var doc = new HtmlDocument();
             doc.OptionAutoCloseOnEnd = false;
@@ -42,6 +47,12 @@ namespace PSO2emaAzureFunctions
             doc.LoadHtml(html);
 
             PSO2EmagScraping emagScraping = new PSO2EmagScraping(log,doc);
+
+            if (DebugFlag == "TRUE")
+            {
+                log.Info(emagScraping.DebugShowList());
+                return;
+            }
 
             var res = emagScraping.PostEmagList(postUrl,apiKey);
             log.Info(res);
@@ -100,7 +111,6 @@ namespace PSO2emaAzureFunctions
             // 時間タグ(tHHmMM)ごとに情報を分割
             public void ScrapingHour(HtmlNodeCollection hourNodes, int hour, int minute)
             {
-                _log.Info("Excec Nest2");
                 foreach (var hourNode in hourNodes)
                 {
                     var timeNode = new HtmlDocument();
@@ -129,18 +139,14 @@ namespace PSO2emaAzureFunctions
             // 各イベントを取得してリストへ
             private void ScrapingEvents(HtmlNodeCollection eventsNodes, int hour, int minute, string eventName)
             {
-                _log.Info($"Excec Nest3 {eventName}");
                 foreach (var enent in eventsNodes)
                 {
-                    _log.Info("Debug 0");
                     var emagValue = new EmagTableValue
                     {
                         Hour = hour,
                         Minute = minute,
                         EventType = eventName
                     };
-
-                    _log.Info("Nest3 Debug1");
 
                     var emaStr = new HtmlDocument();
                     emaStr.LoadHtml(enent.InnerHtml);
@@ -153,19 +159,16 @@ namespace PSO2emaAzureFunctions
                         emagValue.Date = int.Parse(monthAndDate[1]);
                     }
 
-                    _log.Info("Nest3 Debug2");
 
-                    var name = emaStr.DocumentNode.SelectNodes("//span");
+                    var name = emaStr.DocumentNode.SelectNodes("//dd");
                     foreach (var n in name)
                     {
                         emagValue.EventName = n.InnerHtml;
                     }
-                    _log.Info("Nest3 Debug3");
                     emagValue.Key = $"{NowYear}{emagValue.Month:00}{emagValue.Date:00}"; // 2017をどうにかする
                     emagValue.Rkey = $"{emagValue.Hour:00}{emagValue.Minute:00}{eventName}";
                     _table.Add(emagValue);
                 }
-                _log.Info("Excec Nest3 End");
             }
 
             // LambdaのAPIに向けてPost
@@ -173,7 +176,6 @@ namespace PSO2emaAzureFunctions
             {
                 // リクエスト作成
                 var json = JsonConvert.SerializeObject(_table);
-                _log.Info("Excec Nest4(POST)");
                 _log.Info(json);
 
                 var httpWebRequest = (HttpWebRequest)WebRequest.Create(postUrl);
