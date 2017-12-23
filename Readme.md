@@ -4,12 +4,10 @@
 公式サイトの緊急予告を解析しAPIとして変換するプログラムです。  
 毎週、水曜日の16:30(JST)頃に解析を行い、データを更新しています。  
 
-現在対応しているイベントは"緊急クエスト","ライブ","カジノイベント"です。  
-
 ### URI
 
 ```
-https://akakitune87.net/api/v3/pso2ema
+https://akakitune87.net/api/v4/pso2emergency
 ```
 
 ### Method
@@ -32,96 +30,220 @@ Content-Type: application/json
 }
 ```
 
-+ example
-{
-  "EvantDate":"20171201",
-  "EventType":"緊急"
-}
-
 ### 返却データ(JSON)
 以下データの配列
 
 | Key | 説明 |型|
 |-----------|------------|-------|
-| evant       |  イベント名 |文字列|
-| evantType    |  イベント種別 |文字列|
-| month     |      発生月 | 数値|
-| date     |      発生日 |数値 |
-| hour     |      発生時 |数値 |
-| minute     |      発生分 |数値 |
+| EventName       |  イベント名 |文字列|
+| EventType    |  イベント種別 |文字列|
+| Month     |      発生月 | 数値|
+| Date     |      発生日 |数値 |
+| Hour     |      発生時 |数値 |
+| Minute     |      発生分 |数値 |
 
-+ example
+### イベントタイプリスト
+"緊急クエスト","ライブ","カジノイベント"
 
-指定なしの場合
+### example
+
+#### 指定なしの場合
+```
+{
+  "EventDate":"20171224"
+}
+```
+
 ```
 [
     {
-        "evant": "緊急クエスト１",
-		"eventType": "緊急",
-        "month": 8,
-        "date": 22,
-        "hour": 2,
-		"minute": 0
-    },
-	{
-        "evant": "ライブ",
-		"eventType": "ライブ",
-        "month": 8,
-        "date": 22,
-        "hour": 11,
-		"minute": 30
+        "EventName": "新世を成す幻創の造神",
+        "EventType": "緊急",
+        "Month": 12,
+        "Date": 24,
+        "Hour": 2,
+        "Minute": 0
     },
     {
-        "evant": "緊急クエスト２",
-		"eventType": "緊急",
-        "month": 8,
-        "date": 22,
-        "hour": 11,
-		"minute": 0
+        "EventName": "壊城に舞う紅き邪竜",
+        "EventType": "緊急",
+        "Month": 12,
+        "Date": 24,
+        "Hour": 4,
+        "Minute": 0
     },
     {
-        "evant": "カジノイベント",
-		"eventType": "カジノイベント",
-        "month": 8,
-        "date": 22,
-        "hour": 22,
-		"minute": 0
+        "EventName": "クーナスペシャルライブ「永遠のencore Ver.X'mas」",
+        "EventType": "ライブ",
+        "Month": 12,
+        "Date": 24,
+        "Hour": 7,
+        "Minute": 0
     },
     {
-        "evant": "緊急クエスト２",
-        "month": 8,
-        "date": 22,
-        "hour": 22,
-		"minute": 0
+        "EventName": "氷上のメリークリスマス2017",
+        "EventType": "緊急",
+        "Month": 12,
+        "Date": 24,
+        "Hour": 7,
+        "Minute": 30
+    },
+    {
+        "EventName": "壊城に舞う紅き邪竜",
+        "EventType": "緊急",
+        "Month": 12,
+        "Date": 24,
+        "Hour": 9,
+        "Minute": 0
+    },
+    {
+        "EventName": "魔神城戦：不断の闘志",
+        "EventType": "緊急",
+        "Month": 12,
+        "Date": 24,
+        "Hour": 11,
+        "Minute": 0
+    },
+    {
+        "EventName": "クーナスペシャルライブ「永遠のencore Ver.X'mas」",
+        "EventType": "ライブ",
+        "Month": 12,
+        "Date": 24,
+        "Hour": 13,
+        "Minute": 0
+    },
+    {
+        "EventName": "壊城に舞う紅き邪竜",
+        "EventType": "緊急",
+        "Month": 12,
+        "Date": 24,
+        "Hour": 13,
+        "Minute": 30
+    },
+    {
+        "EventName": "氷上のメリークリスマス2017",
+        "EventType": "緊急",
+        "Month": 12,
+        "Date": 24,
+        "Hour": 15,
+        "Minute": 0
+    },
+    {
+        "EventName": "「メセタンシューター」でPSEレベル上昇確率がアップ！",
+        "EventType": "カジノイベント",
+        "Month": 12,
+        "Date": 24,
+        "Hour": 16,
+        "Minute": 0
+    },
+    {
+        "EventName": "氷上のメリークリスマス2017",
+        "EventType": "緊急",
+        "Month": 12,
+        "Date": 24,
+        "Hour": 20,
+        "Minute": 0
+    },
+    {
+        "EventName": "クーナスペシャルライブ「永遠のencore Ver.X'mas」",
+        "EventType": "ライブ",
+        "Month": 12,
+        "Date": 24,
+        "Hour": 22,
+        "Minute": 0
+    },
+    {
+        "EventName": "壊城に舞う紅き邪竜",
+        "EventType": "緊急",
+        "Month": 12,
+        "Date": 24,
+        "Hour": 22,
+        "Minute": 30
     }
 ]
 ```
 
-EventType = "緊急"
+#### "緊急"の場合
+```
+{
+  "EventDate":"20171224",
+  "EventType":"緊急"
+}
+```
+
 ```
 [
     {
-        "evant": "緊急クエスト１",
-		"eventType": "緊急",
-        "month": 8,
-        "date": 22,
-        "hour": 2,
-		"minute": 0
+        "EventName": "新世を成す幻創の造神",
+        "EventType": "緊急",
+        "Month": 12,
+        "Date": 24,
+        "Hour": 2,
+        "Minute": 0
     },
     {
-        "evant": "緊急クエスト２",
-		"eventType": "緊急",
-        "month": 8,
-        "date": 22,
-        "hour": 11,
-		"minute": 0
+        "EventName": "壊城に舞う紅き邪竜",
+        "EventType": "緊急",
+        "Month": 12,
+        "Date": 24,
+        "Hour": 4,
+        "Minute": 0
     },
     {
-        "evant": "緊急クエスト２",
-        "month": 8,
-        "date": 22,
-        "hour": 22,
-		"minute": 0
+        "EventName": "氷上のメリークリスマス2017",
+        "EventType": "緊急",
+        "Month": 12,
+        "Date": 24,
+        "Hour": 7,
+        "Minute": 30
+    },
+    {
+        "EventName": "壊城に舞う紅き邪竜",
+        "EventType": "緊急",
+        "Month": 12,
+        "Date": 24,
+        "Hour": 9,
+        "Minute": 0
+    },
+    {
+        "EventName": "魔神城戦：不断の闘志",
+        "EventType": "緊急",
+        "Month": 12,
+        "Date": 24,
+        "Hour": 11,
+        "Minute": 0
+    },
+    {
+        "EventName": "壊城に舞う紅き邪竜",
+        "EventType": "緊急",
+        "Month": 12,
+        "Date": 24,
+        "Hour": 13,
+        "Minute": 30
+    },
+    {
+        "EventName": "氷上のメリークリスマス2017",
+        "EventType": "緊急",
+        "Month": 12,
+        "Date": 24,
+        "Hour": 15,
+        "Minute": 0
+    },
+    {
+        "EventName": "氷上のメリークリスマス2017",
+        "EventType": "緊急",
+        "Month": 12,
+        "Date": 24,
+        "Hour": 20,
+        "Minute": 0
+    },
+    {
+        "EventName": "壊城に舞う紅き邪竜",
+        "EventType": "緊急",
+        "Month": 12,
+        "Date": 24,
+        "Hour": 22,
+        "Minute": 30
     }
 ]
 ```
