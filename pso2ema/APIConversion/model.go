@@ -14,6 +14,16 @@ import (
 )
 
 var PSO2LambdaURL string
+var PSO2LambdaURLV4 string
+
+type EmaListV4 struct {
+	EventName string `json:"EventName"`
+	EventType string `json:"EventType"`
+	Month     int    `json:"Month"`
+	Date      int    `json:"Date"`
+	Hour      int    `json:"Hour"`
+	Minute    int    `json:"Minute"`
+}
 
 type EmaListV3 struct {
 	EventName string `json:"evant"`
@@ -37,6 +47,47 @@ type EmaListV1 struct {
 	Month     int    `json:"month"`
 	Date      int    `json:"date"`
 	Hour      int    `json:"hour"`
+}
+
+func GetEmaListV4(r *http.Request, eventDate, eventType string) (emaList []EmaListV4, err error) {
+	ctx := appengine.NewContext(r)
+
+	client := &http.Client{
+		Transport: &urlfetch.Transport{
+			Context: ctx,
+		},
+		Timeout: time.Duration(15) * time.Second,
+	}
+
+	req, err := http.NewRequest(
+		"GET",
+		PSO2LambdaURLV4+"?pkey="+eventDate,
+		nil,
+	)
+
+	resp, err := client.Do(req)
+	if err != nil {
+		return
+	}
+	defer resp.Body.Close()
+
+	byteArray, _ := ioutil.ReadAll(resp.Body)
+
+	var tempEmagList []EmaListV4
+	if err = json.Unmarshal(byteArray, &tempEmagList); err != nil {
+		return
+	}
+
+	if eventType == "" || eventType == "none" {
+		emaList = tempEmagList
+	} else {
+		for _, emag := range tempEmagList {
+			if emag.EventType == eventType {
+				emaList = append(emaList, emag)
+			}
+		}
+	}
+	return
 }
 
 func GetEmaListV3(r *http.Request, eventDate, eventType string) (emaList []EmaListV3) {
