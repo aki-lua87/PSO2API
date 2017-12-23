@@ -25,7 +25,7 @@ Content-Type: application/json
 ### POST Raw payload(Json)
 ```
 {
-  "EvantDate":"YYYYMMDD",
+  "EventDate":"YYYYMMDD",
   "EventType":"イベント種別"(指定しない場合はすべてのイベントを取得)
 }
 ```
