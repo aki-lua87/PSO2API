@@ -14,7 +14,8 @@ namespace PSO2emaAzureFunctions
     public static class FetchEmaList
     {
         const string pso2Url = "https://pso2.jp/players/boost/";
-        const int NowYear = 2017;
+        const int OldYear = 2017;
+        const int NowYear = 2018;
 
         // 水曜16：30(JST)に実行
         [FunctionName("FetchEmaList")]
@@ -165,7 +166,17 @@ namespace PSO2emaAzureFunctions
                     {
                         emagValue.EventName = n.InnerHtml;
                     }
-                    emagValue.Key = $"{NowYear}{emagValue.Month:00}{emagValue.Date:00}"; // 2017をどうにかする
+
+                    // 年度変更線対応
+                    if (emagValue.Month == 12)
+                    {
+                        emagValue.Key = $"{OldYear}{emagValue.Month:00}{emagValue.Date:00}"; // 2017
+                    }
+                    else
+                    {
+                        emagValue.Key = $"{NowYear}{emagValue.Month:00}{emagValue.Date:00}"; // 2018
+                    }
+                    
                     emagValue.Rkey = $"{emagValue.Hour:00}{emagValue.Minute:00}{eventName}";
                     _table.Add(emagValue);
                 }
