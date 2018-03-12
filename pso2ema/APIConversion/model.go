@@ -168,7 +168,7 @@ func GetEmaListV2(r *http.Request, getKey string) []EmaListV2 {
 }
 
 // リフレクションで各ヴァージョンに対応したい
-func CnvEmaList(emaList []EmaListV2) []string {
+func CnvEmaList(emaList []EmaListV4) []string {
 	var emaListStr []string
 	for _, v := range emaList {
 		ema := fmt.Sprintf("%02d:%02d %s", v.Hour, v.Minute, v.EventName)

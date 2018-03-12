@@ -15,7 +15,8 @@ func EmagView(w http.ResponseWriter, r *http.Request, ctx context.Context) {
 	params := ctx.Value(ucon.PathParameterKey).(map[string]string)
 	date := params["date"]
 
-	l := CnvEmaList(GetEmaListV2(r, date))
+	emaLists, _ := GetEmaListV4(r, date, "")
+	l := CnvEmaList(emaLists)
 
 	fmt.Fprintln(w, date[0:4], "年", date[4:6], "月", date[6:8], "日")
 	fmt.Fprintln(w, "の緊急クエストは<br>")
