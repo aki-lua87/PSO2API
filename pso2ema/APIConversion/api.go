@@ -26,7 +26,7 @@ func GetPSO2emaV4(w http.ResponseWriter, r *http.Request, ctx context.Context) {
 	respons, err := GetEmaListV4(r, request.EventDate, request.EventType)
 	if err != nil {
 		w.Header().Set("Content-Type", "application/json")
-		w.WriteHeader(418)
+		w.WriteHeader(500)
 		return
 	}
 
