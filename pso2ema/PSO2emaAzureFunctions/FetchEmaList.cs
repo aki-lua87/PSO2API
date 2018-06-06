@@ -164,7 +164,7 @@ namespace PSO2emaAzureFunctions
                     var name = emaStr.DocumentNode.SelectNodes("//dd");
                     foreach (var n in name)
                     {
-                        emagValue.EventName = n.InnerHtml;
+                        emagValue.EventName = n.InnerHtml.Replace('"',' ');
                     }
 
                     // ”N“x•ÏXü‘Î‰
