@@ -10,7 +10,7 @@
     "region"      : "ap-northeast-1",
     "configuration" : "Release",
     "framework"     : "netcoreapp2.0",
-    "function-runtime" : "dotnetcore2.0",
+    "function-runtime" : "dotnetcore2.1",
     "function-memory-size" : 256,
     "function-timeout"     : 30,
     "function-handler"     : "PSO2emagPut::PSO2emagPut.Function::FunctionHandler",
