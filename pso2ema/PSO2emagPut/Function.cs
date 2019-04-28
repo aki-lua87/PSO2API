@@ -1,43 +1,51 @@
 using System;
-using Microsoft.Azure.WebJobs;
-using Microsoft.Azure.WebJobs.Host;
 using System.Collections.Generic;
-using Newtonsoft.Json;
-using System.Net;
 using System.IO;
+using System.Linq;
+using System.Net;
 using System.Net.Http;
-using System.Runtime.InteropServices;
+using System.Text;
+using System.Threading.Tasks;
+using Amazon;
+using Amazon.DynamoDBv2;
+using Amazon.DynamoDBv2.DataModel;
+using Amazon.Lambda.Core;
 using HtmlAgilityPack;
+using Newtonsoft.Json;
 
-namespace PSO2emaAzureFunctions
+// Assembly attribute to enable the Lambda function's JSON input to be converted into a .NET class.
+[assembly: LambdaSerializer(typeof(Amazon.Lambda.Serialization.Json.JsonSerializer))]
+
+namespace PSO2emagPut
 {
-    public static class FetchEmaList
+    public class Function
     {
+        private static readonly AmazonDynamoDBClient Client = new AmazonDynamoDBClient(RegionEndpoint.APNortheast1);
         const string pso2Url = "https://pso2.jp/players/boost/";
-        const int OldYear = 2017;
-        const int NowYear = 2018;
+        const int OldYear = 2018;
+        const int NowYear = 2019;
 
-        // 水曜16：30(JST)に実行
-        [FunctionName("FetchEmaList")]
-        public static void Run([TimerTrigger("0 30 7 * * 3")]TimerInfo myTimer, TraceWriter log)
+        /// <summary>
+        /// A simple function that takes a string and does a ToUpper
+        /// </summary>
+        /// <param name="input"></param>
+        /// <param name="context"></param>
+        /// <returns></returns>
+        public void FunctionHandler(ILambdaContext context)
         {
-            log.Info("Function Start");
-            
-            // LambdaのURL
-            string postUrl = Environment.GetEnvironmentVariable("DBEndpointURL");
-            // LambdaのAPIキー
-            string apiKey = Environment.GetEnvironmentVariable("ApiKey");
+            LambdaLogger.Log("Function Start\n");
 
             string DebugFlag = Environment.GetEnvironmentVariable("DebugFlag");
-            log.Info($"Debug {DebugFlag}");
+            LambdaLogger.Log($"Debug {DebugFlag}\n");
 
-            log.Info($"url - {postUrl}");
-            log.Info($"API Ver.2.1");
+            var discordURL = Environment.GetEnvironmentVariable("DiscordURL");
+
+            LambdaLogger.Log($"Function Ver.3.0\n");
 
             // 全HTMLを読み込み
-            log.Info($"Request for {pso2Url}");
+            LambdaLogger.Log($"Request for {pso2Url}\n");
             string html = (new HttpClient()).GetStringAsync(pso2Url).Result;
-            log.Info($"Get html");
+            LambdaLogger.Log($"Get html\n");
 
             var doc = new HtmlDocument();
             doc.OptionAutoCloseOnEnd = false;
@@ -47,29 +55,73 @@ namespace PSO2emaAzureFunctions
             //サイト全体の読み込み
             doc.LoadHtml(html);
 
-            PSO2EmagScraping emagScraping = new PSO2EmagScraping(log,doc);
+            PSO2EmagScraping emagScraping = new PSO2EmagScraping(doc);
 
             if (DebugFlag == "TRUE")
             {
-                log.Info(emagScraping.DebugShowList());
+                LambdaLogger.Log("Debug Test↓" + "\n");
+                LambdaLogger.Log(emagScraping.DebugShowList2() + "\n");
                 return;
             }
 
-            var res = emagScraping.PostEmagList(postUrl,apiKey);
-            log.Info(res);
+            emagScraping.PutEmagList();
 
-            log.Info("Exec Finish");
+            using (var client = new HttpClient())
+            {
+                LambdaLogger.Log("Discord Post Start \n");
+                var discordContent = JsonConvert.SerializeObject(new DiscordMessage(emagScraping.DebugShowList2()));
+                var stringContent = new StringContent(discordContent, Encoding.UTF8, "application/json");
+                var _ = client.PostAsync(discordURL, stringContent).Result;
+                LambdaLogger.Log("Discord Post Finish \n");
+            }
+
+            LambdaLogger.Log("Exec Finish\n");
+        }
+
+        [DynamoDBTable("PSO2ema")]
+        public class TableValue
+        {
+            [DynamoDBHashKey]
+            [JsonProperty(PropertyName = "Key")] // yyyymmdd
+            public string Key { get; set; }
+
+            [DynamoDBRangeKey]
+            [JsonProperty(PropertyName = "RKey")] //hhmm
+            public string Rkey { get; set; }
+
+            [DynamoDBProperty("EvantName")]
+            [JsonProperty(PropertyName = "EventName")]
+            public string EventName { get; set; }
+
+            [DynamoDBProperty("EvantType")]
+            [JsonProperty(PropertyName = "EventType")]
+            public string EventType { get; set; }
+
+            [DynamoDBProperty("Month")]
+            [JsonProperty(PropertyName = "Month")]
+            public int Month { get; set; }
+
+            [DynamoDBProperty("Date")]
+            [JsonProperty(PropertyName = "Date")]
+            public int Date { get; set; }
+
+            [DynamoDBProperty("Hour")]
+            [JsonProperty(PropertyName = "Hour")]
+            public int Hour { get; set; }
+
+            [DynamoDBProperty("Minute")]
+            [JsonProperty(PropertyName = "Minute")]
+            public int Min { get; set; }
         }
 
         public class PSO2EmagScraping
         {
-            private TraceWriter _log;
             private List<EmagTableValue> _table = new List<EmagTableValue>();
+            private List<string> emaStrList = new List<string>();
 
-            public PSO2EmagScraping(TraceWriter log, HtmlDocument htmlDoc)
+            public PSO2EmagScraping(HtmlDocument htmlDoc)
             {
-                log.Info("Excec PSO2EmagScraping Class");
-                _log = log;
+                LambdaLogger.Log("Excec PSO2EmagScraping Class");
 
                 // イベントスケジュール部の抽出
                 HtmlNodeCollection events = htmlDoc.DocumentNode.SelectNodes($"//div[@class='eventTable--event']");
@@ -164,82 +216,85 @@ namespace PSO2emaAzureFunctions
                     var name = emaStr.DocumentNode.SelectNodes("//dd");
                     foreach (var n in name)
                     {
-                        emagValue.EventName = n.InnerHtml.Replace('"',' ');
+                        emagValue.EventName = n.InnerHtml.Replace('"', ' ');
                     }
 
                     // 年度変更線対応
-                    if (emagValue.Month == 12)
-                    {
-                        emagValue.Key = $"{OldYear}{emagValue.Month:00}{emagValue.Date:00}"; // 2017
-                    }
-                    else
-                    {
-                        emagValue.Key = $"{NowYear}{emagValue.Month:00}{emagValue.Date:00}"; // 2018
-                    }
-                    
+                    emagValue.Key = $"{OldYear}{emagValue.Month:00}{emagValue.Date:00}"; 
+
                     emagValue.Rkey = $"{emagValue.Hour:00}{emagValue.Minute:00}{eventName}";
                     _table.Add(emagValue);
+
+                    emaStrList.Add(emagValue.Key+ " : " + emagValue.EventName);
                 }
             }
 
-            // LambdaのAPIに向けてPost
-            public string PostEmagList(string postUrl, string apiKey)
+            // DynamoDB へ ポスト
+            public void PutEmagList()
             {
-                // リクエスト作成
-                var json = JsonConvert.SerializeObject(_table);
-                _log.Info(json);
+                var input = _table;
+                var dbContext = new DynamoDBContext(Client);
 
-                var httpWebRequest = (HttpWebRequest)WebRequest.Create(postUrl);
-                httpWebRequest.ContentType = "application/json";
-                httpWebRequest.Method = "POST";
-                httpWebRequest.Headers.Add("x-api-key", apiKey);
-
-                using (var streamWriter = new StreamWriter(httpWebRequest.GetRequestStream()))
+                foreach (var v in input)
                 {
-                    streamWriter.Write(json);
-                    streamWriter.Flush();
-                    streamWriter.Close();
+                    var insertTask = dbContext.SaveAsync(v);
+                    insertTask.Wait();
                 }
-                var httpResponse = (HttpWebResponse)httpWebRequest.GetResponse();
-                using (var streamReader = new StreamReader(httpResponse.GetResponseStream()))
-                {
-                    var result = streamReader.ReadToEnd();
-                    return result;
-                }
-                
             }
+
             public string DebugShowList()
             {
                 return JsonConvert.SerializeObject(_table);
             }
-        }
 
-        // リクエストJson用クラス
-        public class EmagTableValue
+            public string DebugShowList2()
+            {
+                string s = "緊急クエスト取得バッチ結果 \n \n";
+                foreach (var v in emaStrList)
+                {
+                    s = s + v + " \n";
+                }
+
+                return s;
+            }
+        }
+    }
+
+    // リクエストJson用クラス
+    [DynamoDBTable("PSO2ema")]
+    public class EmagTableValue
+    {
+        [JsonProperty(PropertyName = "Key")] // yyyymmddhhmm
+        public string Key { get; set; }
+
+        [JsonProperty(PropertyName = "RKey")] // hhmmEvent
+        public string Rkey { get; set; }
+
+        [JsonProperty(PropertyName = "EventName")]
+        public string EventName { get; set; }
+
+        [JsonProperty(PropertyName = "EventType")]
+        public string EventType { get; set; }
+
+        [JsonProperty(PropertyName = "Month")]
+        public int Month { get; set; }
+
+        [JsonProperty(PropertyName = "Date")]
+        public int Date { get; set; }
+
+        [JsonProperty(PropertyName = "Hour")]
+        public int Hour { get; set; }
+
+        [JsonProperty(PropertyName = "Minute")]
+        public int Minute { get; set; }
+    }
+
+    public class DiscordMessage
+    {
+        public DiscordMessage(string value)
         {
-            [JsonProperty(PropertyName = "Key")] // yyyymmddhhmm
-            public string Key { get; set; }
-
-            [JsonProperty(PropertyName = "RKey")] // hhmmEvent
-            public string Rkey { get; set; }
-
-            [JsonProperty(PropertyName = "EventName")]
-            public string EventName { get; set; }
-
-            [JsonProperty(PropertyName = "EventType")]
-            public string EventType { get; set; }
-
-            [JsonProperty(PropertyName = "Month")]
-            public int Month { get; set; }
-
-            [JsonProperty(PropertyName = "Date")]
-            public int Date { get; set; }
-
-            [JsonProperty(PropertyName = "Hour")]
-            public int Hour { get; set; }
-
-            [JsonProperty(PropertyName = "Minute")]
-            public int Minute { get; set; }
+            this.content = value;
         }
+        public string content { get; set; }
     }
 }
