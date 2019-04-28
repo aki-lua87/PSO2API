@@ -1,13 +1,9 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 15
-VisualStudioVersion = 15.0.27130.2010
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.28729.10
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PutDynamoDB", "PutDynamoDB\PutDynamoDB.csproj", "{7DD952B7-5F2E-4438-A97C-470CF08DB962}"
-EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GetDynamoDB", "GetDynamoDB\GetDynamoDB.csproj", "{EB819AD6-B1C7-4B48-B493-CCC603E5D94A}"
-EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PSO2emaAzureFunctions", "PSO2emaAzureFunctions\PSO2emaAzureFunctions.csproj", "{5B79F526-82B9-4DEB-A522-2DA67C3DF71D}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{C8BED180-A3E6-4A0D-9F08-2E10306363E0}"
 	ProjectSection(SolutionItems) = preProject
@@ -16,19 +12,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		..\Readme.md = ..\Readme.md
 	EndProjectSection
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Azure", "Azure", "{0D10E477-2D13-42D3-9EA8-0C6EC29E70F2}"
-EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "AWS", "AWS", "{9E6270EA-559D-4DC5-A547-1CD4B4D872A6}"
-EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "APIConversion", "APIConversion", "{B36CE2FA-48F9-4C63-93CE-CBBFBB4EF46A}"
-	ProjectSection(SolutionItems) = preProject
-		APIConversion\api.go = APIConversion\api.go
-		APIConversion\cron.go = APIConversion\cron.go
-		APIConversion\html.go = APIConversion\html.go
-		APIConversion\model.go = APIConversion\model.go
-		APIConversion\pso2_test.go = APIConversion\pso2_test.go
-		APIConversion\view.go = APIConversion\view.go
-	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "API-Gateway", "API-Gateway", "{1A706E68-48B2-4A1F-A4F5-1783D9314BE5}"
 	ProjectSection(SolutionItems) = preProject
@@ -36,8 +20,6 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "API-Gateway", "API-Gateway"
 	EndProjectSection
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PSO2emagPut", "PSO2emagPut\PSO2emagPut.csproj", "{98F71716-F0F7-4C66-AD26-F8EBE1F53CA9}"
-EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PSO2ScrapingNotification", "PSO2ScrapingNotification\PSO2ScrapingNotification.csproj", "{CF2D8597-98A5-44EF-BD46-AA979AA6B3EF}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -47,28 +29,12 @@ Global
 		Release|x86 = Release|x86
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{7DD952B7-5F2E-4438-A97C-470CF08DB962}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{7DD952B7-5F2E-4438-A97C-470CF08DB962}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{7DD952B7-5F2E-4438-A97C-470CF08DB962}.Debug|x86.ActiveCfg = Debug|Any CPU
-		{7DD952B7-5F2E-4438-A97C-470CF08DB962}.Debug|x86.Build.0 = Debug|Any CPU
-		{7DD952B7-5F2E-4438-A97C-470CF08DB962}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{7DD952B7-5F2E-4438-A97C-470CF08DB962}.Release|Any CPU.Build.0 = Release|Any CPU
-		{7DD952B7-5F2E-4438-A97C-470CF08DB962}.Release|x86.ActiveCfg = Release|Any CPU
-		{7DD952B7-5F2E-4438-A97C-470CF08DB962}.Release|x86.Build.0 = Release|Any CPU
 		{EB819AD6-B1C7-4B48-B493-CCC603E5D94A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{EB819AD6-B1C7-4B48-B493-CCC603E5D94A}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{EB819AD6-B1C7-4B48-B493-CCC603E5D94A}.Debug|x86.ActiveCfg = Debug|Any CPU
 		{EB819AD6-B1C7-4B48-B493-CCC603E5D94A}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{EB819AD6-B1C7-4B48-B493-CCC603E5D94A}.Release|Any CPU.Build.0 = Release|Any CPU
 		{EB819AD6-B1C7-4B48-B493-CCC603E5D94A}.Release|x86.ActiveCfg = Release|Any CPU
-		{5B79F526-82B9-4DEB-A522-2DA67C3DF71D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{5B79F526-82B9-4DEB-A522-2DA67C3DF71D}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{5B79F526-82B9-4DEB-A522-2DA67C3DF71D}.Debug|x86.ActiveCfg = Debug|Any CPU
-		{5B79F526-82B9-4DEB-A522-2DA67C3DF71D}.Debug|x86.Build.0 = Debug|Any CPU
-		{5B79F526-82B9-4DEB-A522-2DA67C3DF71D}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{5B79F526-82B9-4DEB-A522-2DA67C3DF71D}.Release|Any CPU.Build.0 = Release|Any CPU
-		{5B79F526-82B9-4DEB-A522-2DA67C3DF71D}.Release|x86.ActiveCfg = Release|Any CPU
-		{5B79F526-82B9-4DEB-A522-2DA67C3DF71D}.Release|x86.Build.0 = Release|Any CPU
 		{98F71716-F0F7-4C66-AD26-F8EBE1F53CA9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{98F71716-F0F7-4C66-AD26-F8EBE1F53CA9}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{98F71716-F0F7-4C66-AD26-F8EBE1F53CA9}.Debug|x86.ActiveCfg = Debug|Any CPU
@@ -77,22 +43,12 @@ Global
 		{98F71716-F0F7-4C66-AD26-F8EBE1F53CA9}.Release|Any CPU.Build.0 = Release|Any CPU
 		{98F71716-F0F7-4C66-AD26-F8EBE1F53CA9}.Release|x86.ActiveCfg = Release|Any CPU
 		{98F71716-F0F7-4C66-AD26-F8EBE1F53CA9}.Release|x86.Build.0 = Release|Any CPU
-		{CF2D8597-98A5-44EF-BD46-AA979AA6B3EF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{CF2D8597-98A5-44EF-BD46-AA979AA6B3EF}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{CF2D8597-98A5-44EF-BD46-AA979AA6B3EF}.Debug|x86.ActiveCfg = Debug|Any CPU
-		{CF2D8597-98A5-44EF-BD46-AA979AA6B3EF}.Debug|x86.Build.0 = Debug|Any CPU
-		{CF2D8597-98A5-44EF-BD46-AA979AA6B3EF}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{CF2D8597-98A5-44EF-BD46-AA979AA6B3EF}.Release|Any CPU.Build.0 = Release|Any CPU
-		{CF2D8597-98A5-44EF-BD46-AA979AA6B3EF}.Release|x86.ActiveCfg = Release|Any CPU
-		{CF2D8597-98A5-44EF-BD46-AA979AA6B3EF}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
-		{7DD952B7-5F2E-4438-A97C-470CF08DB962} = {9E6270EA-559D-4DC5-A547-1CD4B4D872A6}
 		{EB819AD6-B1C7-4B48-B493-CCC603E5D94A} = {9E6270EA-559D-4DC5-A547-1CD4B4D872A6}
-		{5B79F526-82B9-4DEB-A522-2DA67C3DF71D} = {0D10E477-2D13-42D3-9EA8-0C6EC29E70F2}
 		{1A706E68-48B2-4A1F-A4F5-1783D9314BE5} = {9E6270EA-559D-4DC5-A547-1CD4B4D872A6}
 		{98F71716-F0F7-4C66-AD26-F8EBE1F53CA9} = {9E6270EA-559D-4DC5-A547-1CD4B4D872A6}
 	EndGlobalSection
