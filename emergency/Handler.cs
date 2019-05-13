@@ -8,6 +8,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Amazon;
 using Amazon.DynamoDBv2;
+using Amazon.DynamoDBv2.Model;
 using Amazon.DynamoDBv2.DataModel;
 using Amazon.Lambda.Core;
 using HtmlAgilityPack;
@@ -17,7 +18,6 @@ namespace PSO2emagPut
 {
     public class Function
     {
-        private static readonly AmazonDynamoDBClient Client = new AmazonDynamoDBClient(RegionEndpoint.APNortheast1);
         const string pso2Url = "https://pso2.jp/players/boost/";
         const int CurrentYear = 2019;
         const int NextYear = CurrentYear + 1;
@@ -30,6 +30,7 @@ namespace PSO2emagPut
             LambdaLogger.Log($"Debug {DebugFlag}\n");
 
             var discordURL = Environment.GetEnvironmentVariable("DiscordURL");
+            var tableName = Environment.GetEnvironmentVariable("TABLE_NAME");
 
             LambdaLogger.Log($"Function Ver.3.0\n");
 
@@ -44,11 +45,10 @@ namespace PSO2emagPut
 
             doc.LoadHtml(html);
 
-            PSO2EmagScraping emagScraping = new PSO2EmagScraping(doc);
+            PSO2EmagScraping emagScraping = new PSO2EmagScraping(doc,tableName);
 
             if (DebugFlag == "TRUE")
             {
-                LambdaLogger.Log("Debug Test��" + "\n");
                 LambdaLogger.Log(emagScraping.DebugShowList2() + "\n");
                 return;
             }
@@ -73,10 +73,12 @@ namespace PSO2emagPut
         {
             private List<EmagTableValue> _table = new List<EmagTableValue>();
             private List<string> emaStrList = new List<string>();
+            private string _tableName;
 
-            public PSO2EmagScraping(HtmlDocument htmlDoc)
+            public PSO2EmagScraping(HtmlDocument htmlDoc,string tableName)
             {
                 LambdaLogger.Log("Excec PSO2EmagScraping Class");
+                this._tableName = tableName;
 
                 HtmlNodeCollection events = htmlDoc.DocumentNode.SelectNodes($"//div[@class='eventTable--event']");
                 foreach (HtmlNode eventNode in events)
@@ -179,12 +181,28 @@ namespace PSO2emagPut
 
             public void PutEmagList()
             {
-                var input = _table;
-                var dbContext = new DynamoDBContext(Client);
+                var insertParams = _table;
+                var Client = new AmazonDynamoDBClient(RegionEndpoint.APNortheast1);
+                // var dbContext = new DynamoDBContext(Client);
 
-                foreach (var v in input)
+                foreach (var param in insertParams)
                 {
-                    var insertTask = dbContext.SaveAsync(v);
+                    var request = new PutItemRequest
+                    {
+                        TableName = _tableName,
+                        Item = new Dictionary<string, AttributeValue>()
+                        {
+                            { "yyyymmdd", new AttributeValue { S = param.yyyymmdd }},
+                            { "hhname", new AttributeValue { S = param.hhname }},
+                            { "EventName", new AttributeValue { S = param.EventName }},
+                            { "EventType", new AttributeValue { S = param.EventType }},
+                            { "Month", new AttributeValue { N = param.Month.ToString() }},
+                            { "Date", new AttributeValue { N = param.Date.ToString() }},
+                            { "Hour", new AttributeValue { N = param.Hour.ToString() }},
+                            { "Minute", new AttributeValue { N = param.Minute.ToString() }},
+                        }
+                    };
+                    var insertTask = Client.PutItemAsync(request);
                     insertTask.Wait();
                 }
             }
