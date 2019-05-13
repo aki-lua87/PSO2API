@@ -7,6 +7,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Amazon;
 using Amazon.DynamoDBv2;
+using Amazon.DynamoDBv2.Model;
 using Amazon.DynamoDBv2.DataModel;
 using Amazon.Lambda.Core;
 using HtmlAgilityPack;
@@ -19,14 +20,14 @@ namespace PSO2CoatOfArms
         const string projectName = "PSO2CoatOfArms";
         const string pso2Url = "http://pso2.jp/players/news/i_yget/";
 
-        private static readonly AmazonDynamoDBClient Client = new AmazonDynamoDBClient(RegionEndpoint.APNortheast1);
-
         public bool FunctionHandler()
         {
             try
             {
                 var discordURL = Environment.GetEnvironmentVariable("DiscordURL");
+                var tableName = Environment.GetEnvironmentVariable("TABLE_NAME");
 
+                var Client = new AmazonDynamoDBClient(RegionEndpoint.APNortheast1);
                 var dbContext = new DynamoDBContext(Client);
 
                 var dbContents = new TableValue();
@@ -46,32 +47,47 @@ namespace PSO2CoatOfArms
                 dbContents.StringList = new List<string>();
                 foreach (var eventNode in events)
                 {
-                    context.Logger.Log(eventNode.InnerHtml);
+                    LambdaLogger.Log(eventNode.InnerHtml);
                     dbContents.StringList.Add(eventNode.InnerHtml);
                 }
                 dbContents.UpdateTime = DateTime.UtcNow.ToString();
 
-                var insertTask = dbContext.SaveAsync(dbContents);
+                var request = new PutItemRequest
+                {
+                    TableName = tableName,
+                    Item = new Dictionary<string, AttributeValue>()
+                    {
+                        { "keyName", new AttributeValue { S = dbContents.ProjectName }},
+                        { "StringList", new AttributeValue { SS = dbContents.StringList }},
+                        { "UpdateTime", new AttributeValue { S = dbContents.UpdateTime }},
+                    }
+                };
+                var insertTask = Client.PutItemAsync(request);
                 insertTask.Wait();
 
-                var postText = "�E�҂̖�͎擾�o�b�`���� \n";
+                var postText = "紋章取得結果 \n";
                 foreach (var targetName in dbContents.StringList)
                 {
                     postText += $"{targetName} \n";
                 }
-                postText += $"\n ���s����(UTC) : {dbContents.UpdateTime}";
+                postText += $"\n (UTC) : {dbContents.UpdateTime}";
 
-                using (var client = new HttpClient())
+                // Post Discord
+                if(false)
                 {
-                    context.Logger.Log(postText);
-                    var discordContent = JsonConvert.SerializeObject(new DiscordMessage(postText));
-                    var stringContent = new StringContent(discordContent, Encoding.UTF8, "application/json");
-                     var _ = client.PostAsync(discordURL, stringContent).Result;
+                    using (var client = new HttpClient())
+                    {
+                        LambdaLogger.Log(postText);
+                        var discordContent = JsonConvert.SerializeObject(new DiscordMessage(postText));
+                        var stringContent = new StringContent(discordContent, Encoding.UTF8, "application/json");
+                        var _ = client.PostAsync(discordURL, stringContent).Result;
+                    }
                 }
+                
             }
             catch (Exception e)
             {
-                context.Logger.Log(e.ToString());
+                LambdaLogger.Log(e.ToString());
                 return false;
             }
             return true;
@@ -88,17 +104,10 @@ namespace PSO2CoatOfArms
         public string content { get; set; }
     }
 
-    [DynamoDBTable()]
     public class TableValue
     {
-        [DynamoDBHashKey]
         public string ProjectName { get; set; }
-
-        [DynamoDBProperty("StringList")]
         public List<string> StringList { get; set; }
-
-
-        [DynamoDBProperty("UpdateTime")]
         public string UpdateTime { get; set; }
     }
 }

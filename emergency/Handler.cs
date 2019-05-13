@@ -20,15 +20,9 @@ namespace PSO2emagPut
         private static readonly AmazonDynamoDBClient Client = new AmazonDynamoDBClient(RegionEndpoint.APNortheast1);
         const string pso2Url = "https://pso2.jp/players/boost/";
         const int CurrentYear = 2019;
-        const int NextYear = 2019;
+        const int NextYear = CurrentYear + 1;
 
-        /// <summary>
-        /// A simple function that takes a string and does a ToUpper
-        /// </summary>
-        /// <param name="input"></param>
-        /// <param name="context"></param>
-        /// <returns></returns>
-        public void FunctionHandler(ILambdaContext context)
+        public void FunctionHandler()
         {
             LambdaLogger.Log("Function Start\n");
 
@@ -61,15 +55,17 @@ namespace PSO2emagPut
 
             emagScraping.PutEmagList();
 
-            // using (var client = new HttpClient())
-            // {
-            //     LambdaLogger.Log("Discord Post Start \n");
-            //     var discordContent = JsonConvert.SerializeObject(new DiscordMessage(emagScraping.DebugShowList2()));
-            //     var stringContent = new StringContent(discordContent, Encoding.UTF8, "application/json");
-            //     var _ = client.PostAsync(discordURL, stringContent).Result;
-            //     LambdaLogger.Log("Discord Post Finish \n");
-            // }
-
+            if(false)
+            {
+                using (var client = new HttpClient())
+                {
+                    LambdaLogger.Log("Discord Post Start \n");
+                    var discordContent = JsonConvert.SerializeObject(new DiscordMessage(emagScraping.DebugShowList2()));
+                    var stringContent = new StringContent(discordContent, Encoding.UTF8, "application/json");
+                    var _ = client.PostAsync(discordURL, stringContent).Result;
+                    LambdaLogger.Log("Discord Post Finish \n");
+                }
+            }
             LambdaLogger.Log("Exec Finish\n");
         }
 

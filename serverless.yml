@@ -24,10 +24,12 @@ functions:
           method: any
   emergency_put:
     handler: CsharpHandlers::PSO2emagPut.Function::FunctionHandler
+    environment:
+      TABLE_NAME: ${self:custom.pso2emergencyDBname}
   coat_of_arms_put:
     handler: CsharpHandlers::PSO2CoatOfArms.Function::FunctionHandler
     environment:
-      DB_NAME: ${self:custom.pso2commonDBname}
+      TABLE_NAME: ${self:custom.pso2commonDBname}
 
 resources:
   Resources:
