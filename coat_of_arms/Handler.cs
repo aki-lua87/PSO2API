@@ -12,9 +12,6 @@ using Amazon.Lambda.Core;
 using HtmlAgilityPack;
 using Newtonsoft.Json;
 
-// Assembly attribute to enable the Lambda function's JSON input to be converted into a .NET class.
-[assembly: LambdaSerializer(typeof(Amazon.Lambda.Serialization.Json.JsonSerializer))]
-
 namespace PSO2CoatOfArms
 {
     public class Function
@@ -24,7 +21,7 @@ namespace PSO2CoatOfArms
 
         private static readonly AmazonDynamoDBClient Client = new AmazonDynamoDBClient(RegionEndpoint.APNortheast1);
 
-        public bool FunctionHandler(ILambdaContext context)
+        public bool FunctionHandler()
         {
             try
             {
@@ -42,7 +39,6 @@ namespace PSO2CoatOfArms
                 doc.OptionCheckSyntax = false;
                 doc.OptionFixNestedTags = true;
 
-                //ƒTƒCƒg‘S‘Ì‚Ì“Ç‚İ‚İ
                 doc.LoadHtml(html);
 
                 var events = doc.DocumentNode.SelectNodes($"//th[@class='sub']");
@@ -58,20 +54,19 @@ namespace PSO2CoatOfArms
                 var insertTask = dbContext.SaveAsync(dbContents);
                 insertTask.Wait();
 
-                // Œ‹‰Ê‚ğDiscord‚Ö“Še
-                var postText = "—EÒ‚Ì–äÍæ“¾ƒoƒbƒ`Œ‹‰Ê \n";
+                var postText = "ï¿½Eï¿½Ò‚Ì–ï¿½Íæ“¾ï¿½oï¿½bï¿½`ï¿½ï¿½ï¿½ï¿½ \n";
                 foreach (var targetName in dbContents.StringList)
                 {
                     postText += $"{targetName} \n";
                 }
-                postText += $"\n ÀsŠÔ(UTC) : {dbContents.UpdateTime}";
+                postText += $"\n ï¿½ï¿½ï¿½sï¿½ï¿½ï¿½ï¿½(UTC) : {dbContents.UpdateTime}";
 
                 using (var client = new HttpClient())
                 {
                     context.Logger.Log(postText);
                     var discordContent = JsonConvert.SerializeObject(new DiscordMessage(postText));
                     var stringContent = new StringContent(discordContent, Encoding.UTF8, "application/json");
-                    var _ = client.PostAsync(discordURL, stringContent).Result;
+                     var _ = client.PostAsync(discordURL, stringContent).Result;
                 }
             }
             catch (Exception e)
@@ -93,7 +88,7 @@ namespace PSO2CoatOfArms
         public string content { get; set; }
     }
 
-    [DynamoDBTable("common")]
+    [DynamoDBTable()]
     public class TableValue
     {
         [DynamoDBHashKey]

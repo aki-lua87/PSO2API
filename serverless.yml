@@ -1,0 +1,131 @@
+service: pso2api
+
+custom:
+  stage: ${opt:stage,"default"} # resource suffix
+  setting: ${file(./setting.yml)}
+  pso2emergencyDBname: pso2_emergency_${self:custom.stage}
+  pso2commonDBname: pso2_common_${self:custom.stage}
+
+provider:
+  name: aws
+  runtime: dotnetcore2.1
+  region: ap-northeast-1
+  role: ${self:custom.setting.lambda_role}
+
+package:
+  artifact: bin/release/netcoreapp2.1/deploy-package.zip
+
+functions:
+  dummy:
+    handler: CsharpHandlers::AwsDotnetCsharp.Handler::Hello
+    events:
+      - http:
+          path: "{proxy+}"
+          method: any
+  emergency_put:
+    handler: CsharpHandlers::PSO2emagPut.Function::FunctionHandler
+  coat_of_arms_put:
+    handler: CsharpHandlers::PSO2CoatOfArms.Function::FunctionHandler
+    environment:
+      DB_NAME: ${self:custom.pso2commonDBname}
+
+resources:
+  Resources:
+    pso2commonDB:
+      Type: 'AWS::DynamoDB::Table'
+      Properties:
+        TableName: ${self:custom.pso2commonDBname}
+        AttributeDefinitions:
+        - AttributeName: keyName
+          AttributeType: S
+        KeySchema:
+        - AttributeName: keyName
+          KeyType: HASH
+        ProvisionedThroughput:
+          ReadCapacityUnits: 1
+          WriteCapacityUnits: 1
+    pso2emergencyDB:
+      Type: 'AWS::DynamoDB::Table'
+      Properties:
+        TableName: ${self:custom.pso2emergencyDBname}
+        AttributeDefinitions:
+        - AttributeName: yyyymmdd
+          AttributeType: S
+        - AttributeName: hhname
+          AttributeType: S
+        KeySchema:
+        - AttributeName: yyyymmdd
+          KeyType: HASH
+        - AttributeName: hhname
+          KeyType: RANGE
+        ProvisionedThroughput:
+          ReadCapacityUnits: 3
+          WriteCapacityUnits: 1
+    emergencyResource:
+      Type: AWS::ApiGateway::Resource
+      Properties:
+        ParentId:
+          Fn::GetAtt:
+            - ApiGatewayRestApi
+            - RootResourceId
+        PathPart: emergency
+        RestApiId:
+          Ref: ApiGatewayRestApi
+    emergencyMethod:
+      Type: AWS::ApiGateway::Method
+      Properties:
+        ResourceId:
+          Ref: emergencyResource
+        RestApiId:
+          Ref: ApiGatewayRestApi
+        HttpMethod: POST
+        AuthorizationType: NONE
+        MethodResponses:
+          - StatusCode: 200
+        Integration:
+          Type: AWS
+          Credentials: ${self:custom.setting.credentials_role}
+          IntegrationHttpMethod: POST
+          Uri: arn:aws:apigateway:${self:provider.region}:dynamodb:action/Query
+          RequestTemplates: 
+            "application/json": |
+              {
+                  "TableName": "${self:custom.pso2emergencyDBname}",
+                  "ExpressionAttributeNames": {
+                      "#k":"yyyymmdd"    
+                      #if($input.json('$.EventType').length() > 2),
+                      "#t":"EventType"
+                      #end
+                  },
+                  "KeyConditionExpression": "#k = :key",
+                  #if($input.json('$.EventType').length() > 2)
+                      "FilterExpression": "#t = :type",
+                  #end
+                  "ExpressionAttributeValues": {
+                      ":key": {
+                          "S": $input.json('$.EventDate')
+                      }
+                      #if($input.json('$.EventType').length() > 2),
+                      ":type": {
+                          "S": $input.json('$.EventType')
+                      }
+                      #end
+                  }
+              }
+          IntegrationResponses: 
+            - ResponseTemplates: 
+                "application/json": |
+                  #set($items = $input.path('$.Items'))
+                  [
+                    #foreach($item in $items)
+                      {
+                        "Month": $item.Month.N,
+                        "Date": $item.Date.N,
+                        "Hour": $item.Hour.N,
+                        "Minute": $item.Minute.N,
+                        "EventName": "$item.EventName.S",
+                        "EventType": "$item.EventType.S"
+                      }#if($foreach.hasNext),#end
+                    #end
+                  ]
+              StatusCode: 200
