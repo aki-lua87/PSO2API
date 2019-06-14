@@ -18,6 +18,7 @@ namespace PSO2CoatOfArms
     public class Function
     {
         const string projectName = "PSO2CoatOfArms";
+        // 勇者の紋章URL
         const string pso2Url = "http://pso2.jp/players/news/i_yget/";
 
         public bool FunctionHandler()

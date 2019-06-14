@@ -16,7 +16,7 @@ package:
   artifact: bin/release/netcoreapp2.1/deploy-package.zip
 
 functions:
-  dummy:
+  dummy: # ダミーのAPI
     handler: CsharpHandlers::AwsDotnetCsharp.Handler::Hello
     events:
       - http:
@@ -31,6 +31,7 @@ functions:
     environment:
       TABLE_NAME: ${self:custom.pso2commonDBname}
 
+# Cloud Formation resources
 resources:
   Resources:
     pso2commonDB:
@@ -63,6 +64,7 @@ resources:
         ProvisionedThroughput:
           ReadCapacityUnits: 3
           WriteCapacityUnits: 1
+    # PSO2緊急API
     emergencyResource:
       Type: AWS::ApiGateway::Resource
       Properties:
@@ -131,3 +133,30 @@ resources:
                     #end
                   ]
               StatusCode: 200
+    # PSO2紋章API
+    coat_of_armsResource:
+      Type: AWS::ApiGateway::Resource
+      Properties:
+        ParentId:
+          Fn::GetAtt:
+            - ApiGatewayRestApi
+            - RootResourceId
+        PathPart: coat_of_arms
+        RestApiId:
+          Ref: ApiGatewayRestApi
+    coat_of_armsMethod:
+      Type: AWS::ApiGateway::Method
+      Properties:
+        ResourceId:
+          Ref: coat_of_armsResource
+        RestApiId:
+          Ref: ApiGatewayRestApi
+        HttpMethod: POST
+        AuthorizationType: NONE
+        MethodResponses:
+          - StatusCode: 200
+        Integration:
+          Type: AWS
+          Credentials: ${self:custom.setting.credentials_role}
+          IntegrationHttpMethod: POST
+          Uri: arn:aws:apigateway:${self:provider.region}:dynamodb:action/Query
