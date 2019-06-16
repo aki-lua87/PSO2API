@@ -1,0 +1,103 @@
+openapi: 3.0.0
+
+info:
+  title: PSO2 API
+  version: 5.0.0
+
+servers:
+  - url: https://pso2.akakitune87.net
+
+paths:
+  api/emergency:
+    post:
+      tags: 
+        - pso2
+      description: パラメータで指定した年月日(YYYYMMDD)に該当するブースト＆予告イベント情報を返却
+      requestBody:
+        content:
+          application/json:
+            schema: 
+              $ref: '#/components/schemas/emReq'
+            example:
+              EventDate: 20190616
+              EventType: 緊急
+      responses:
+        '200':
+          content:
+            application/json:
+              schema: 
+                type: array
+                items:
+                  $ref: '#/components/schemas/emRes'
+                example: 
+                  - EventName: 終の艦隊迎撃戦
+                    EventType: 緊急
+                    Month: 6
+                    Date: 16
+                    Hour: 0
+                    Minute: 0
+                  - EventName: 悲劇を願う破滅の虚影
+                    EventType: 緊急
+                    Month: 6
+                    Date: 16
+                    Hour: 21
+                    Minute: 0
+  api/coat_of_arms:
+    get:
+      tags: 
+        - pso2
+      description: 最新の紋章ゲットキャンペーンの内容を返却
+      responses:
+        '200':
+          content:
+            application/json:
+              schema: 
+                type: array
+                items:
+                  $ref: '#/components/schemas/coaRes'
+                example: 
+                  - UpdateTime: 新世を成す幻創の造神
+                    TargetList: 
+                      - PSO2』と連動した『PSO2es』でクイック探索を1回行う
+                      - いずれかの「フリーフィールド」を3回クリア
+                      - いずれかの「フリーフィールド」を5回クリア
+                      - ゲームに3日ログインする
+                      - ランクマッチ「エンブレム争奪戦」を1回クリア
+                      - 緊急クエスト「終の艦隊迎撃戦」の「艦隊迎撃戦：敵旗艦突撃」または「艦隊迎撃戦：戦艦撃破」を1回クリア
+                      - 緊急クエスト「終の艦隊迎撃戦」の「艦隊迎撃戦：敵旗艦突撃」または「艦隊迎撃戦：戦艦撃破」を合計3回クリア
+
+components:
+  schemas: 
+    coaRes:
+      type: object 
+      properties:
+        UpdateTime: 
+          type: string
+        TargetList:
+          type: array
+    emReq:
+      type: object 
+      required: 
+        - EventDate
+      properties:
+        EventDate: 
+          type: string
+        EventType:
+          type: string
+    emRes: 
+      type: object 
+      required: 
+        - id
+      properties:
+        EventName: 
+          type: string 
+        EventType: 
+          type: string 
+        Month: 
+          type: integer 
+        Date: 
+          type: integer 
+        Hour: 
+          type: integer 
+        Minute: 
+          type: integer 

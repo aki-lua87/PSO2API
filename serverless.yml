@@ -1,0 +1,191 @@
+service: pso2api
+
+custom:
+  stage: ${opt:stage,"default"} # resource suffix
+  setting: ${file(./setting.yml)}
+  pso2emergencyDBname: pso2_emergency_${self:custom.stage}
+  pso2commonDBname: pso2_common_${self:custom.stage}
+
+provider:
+  name: aws
+  runtime: dotnetcore2.1
+  region: ap-northeast-1
+  role: ${self:custom.setting.lambda_role}
+
+package:
+  artifact: bin/release/netcoreapp2.1/deploy-package.zip
+
+functions:
+  dummy:
+    handler: CsharpHandlers::AwsDotnetCsharp.Handler::Hello
+    events:
+      - http:
+          path: dummy
+          method: get
+  # CORS 手動でAWSコンソールより設定
+  emergency_put:
+    handler: CsharpHandlers::PSO2emagPut.Function::FunctionHandler
+    environment:
+      TABLE_NAME: ${self:custom.pso2emergencyDBname}
+    events:
+      - schedule: cron(30 7 ? * WED *)
+      - schedule: cron(5 15 ? * * *)
+  coat_of_arms_put:
+    handler: CsharpHandlers::PSO2CoatOfArms.Function::FunctionHandler
+    environment:
+      TABLE_NAME: ${self:custom.pso2commonDBname}
+    events:
+      - schedule: cron(30 7 ? * WED *)
+      - schedule: cron(5 15 ? * * *)
+
+resources:
+  Resources:
+    pso2commonDB:
+      Type: 'AWS::DynamoDB::Table'
+      Properties:
+        TableName: ${self:custom.pso2commonDBname}
+        AttributeDefinitions:
+        - AttributeName: keyName
+          AttributeType: S
+        KeySchema:
+        - AttributeName: keyName
+          KeyType: HASH
+        ProvisionedThroughput:
+          ReadCapacityUnits: 1
+          WriteCapacityUnits: 1
+    pso2emergencyDB:
+      Type: 'AWS::DynamoDB::Table'
+      Properties:
+        TableName: ${self:custom.pso2emergencyDBname}
+        AttributeDefinitions:
+        - AttributeName: yyyymmdd
+          AttributeType: S
+        - AttributeName: hhname
+          AttributeType: S
+        KeySchema:
+        - AttributeName: yyyymmdd
+          KeyType: HASH
+        - AttributeName: hhname
+          KeyType: RANGE
+        ProvisionedThroughput:
+          ReadCapacityUnits: 5
+          WriteCapacityUnits: 1
+    apiRootResource:
+      Type: AWS::ApiGateway::Resource
+      Properties:
+        ParentId:
+          Fn::GetAtt:
+            - ApiGatewayRestApi
+            - RootResourceId
+        PathPart: api
+        RestApiId:
+          Ref: ApiGatewayRestApi
+    emergencyResource:
+      Type: AWS::ApiGateway::Resource
+      Properties:
+        ParentId:
+          Ref: apiRootResource
+        PathPart: emergency
+        RestApiId:
+          Ref: ApiGatewayRestApi
+    emergencyMethod:
+      Type: AWS::ApiGateway::Method
+      Properties:
+        ResourceId:
+          Ref: emergencyResource
+        RestApiId:
+          Ref: ApiGatewayRestApi
+        HttpMethod: POST
+        AuthorizationType: NONE
+        MethodResponses:
+          - StatusCode: 200
+        Integration:
+          Type: AWS
+          Credentials: ${self:custom.setting.credentials_role}
+          IntegrationHttpMethod: POST
+          Uri: arn:aws:apigateway:${self:provider.region}:dynamodb:action/Query
+          RequestTemplates: 
+            "application/json": |
+              {
+                  "TableName": "${self:custom.pso2emergencyDBname}",
+                  "ExpressionAttributeNames": {
+                      "#k":"yyyymmdd"    
+                      #if($input.json('$.EventType').length() > 2),
+                      "#t":"EventType"
+                      #end
+                  },
+                  "KeyConditionExpression": "#k = :key",
+                  #if($input.json('$.EventType').length() > 2)
+                      "FilterExpression": "#t = :type",
+                  #end
+                  "ExpressionAttributeValues": {
+                      ":key": {
+                          "S": $input.json('$.EventDate')
+                      }
+                      #if($input.json('$.EventType').length() > 2),
+                      ":type": {
+                          "S": $input.json('$.EventType')
+                      }
+                      #end
+                  }
+              }
+          IntegrationResponses: 
+            - ResponseTemplates: 
+                "application/json": |
+                  #set($items = $input.path('$.Items'))
+                  [
+                    #foreach($item in $items)
+                      {
+                        "Month": $item.Month.N,
+                        "Date": $item.Date.N,
+                        "Hour": $item.Hour.N,
+                        "Minute": $item.Minute.N,
+                        "EventName": "$item.EventName.S",
+                        "EventType": "$item.EventType.S"
+                      }#if($foreach.hasNext),#end
+                    #end
+                  ]
+              StatusCode: 200
+    coatofarmsResource:
+      Type: AWS::ApiGateway::Resource
+      Properties:
+        ParentId:
+          Ref: apiRootResource
+        PathPart: coat_of_arms
+        RestApiId:
+          Ref: ApiGatewayRestApi
+    coatofarmsMethod:
+      Type: AWS::ApiGateway::Method
+      Properties:
+        ResourceId:
+          Ref: coatofarmsResource
+        RestApiId:
+          Ref: ApiGatewayRestApi
+        HttpMethod: GET
+        AuthorizationType: NONE
+        MethodResponses:
+          - StatusCode: 200
+        Integration:
+          Type: AWS
+          Credentials: ${self:custom.setting.credentials_role}
+          IntegrationHttpMethod: POST
+          Uri: arn:aws:apigateway:${self:provider.region}:dynamodb:action/GetItem
+          RequestTemplates: 
+            "application/json": |
+              {
+                "TableName": "${self:custom.pso2commonDBname}",
+                "Key": { 
+                  "keyName": {
+                    "S": "PSO2CoatOfArms"
+                  }
+                }
+              }
+          IntegrationResponses: 
+            - ResponseTemplates: 
+                "application/json": |
+                  #set($item = $input.path('$.Item'))
+                  {
+                    "UpdateTime": "$item.UpdateTime.S",
+                    "TargetList": $item.StringList.SS
+                  }
+              StatusCode: 200

@@ -8,30 +8,21 @@ using System.Text;
 using System.Threading.Tasks;
 using Amazon;
 using Amazon.DynamoDBv2;
+using Amazon.DynamoDBv2.Model;
 using Amazon.DynamoDBv2.DataModel;
 using Amazon.Lambda.Core;
 using HtmlAgilityPack;
 using Newtonsoft.Json;
 
-// Assembly attribute to enable the Lambda function's JSON input to be converted into a .NET class.
-[assembly: LambdaSerializer(typeof(Amazon.Lambda.Serialization.Json.JsonSerializer))]
-
 namespace PSO2emagPut
 {
     public class Function
     {
-        private static readonly AmazonDynamoDBClient Client = new AmazonDynamoDBClient(RegionEndpoint.APNortheast1);
         const string pso2Url = "https://pso2.jp/players/boost/";
-        const int OldYear = 2018;
-        const int NowYear = 2019;
+        const int CurrentYear = 2019;
+        const int NextYear = CurrentYear + 1;
 
-        /// <summary>
-        /// A simple function that takes a string and does a ToUpper
-        /// </summary>
-        /// <param name="input"></param>
-        /// <param name="context"></param>
-        /// <returns></returns>
-        public void FunctionHandler(ILambdaContext context)
+        public void FunctionHandler()
         {
             LambdaLogger.Log("Function Start\n");
 
@@ -39,10 +30,10 @@ namespace PSO2emagPut
             LambdaLogger.Log($"Debug {DebugFlag}\n");
 
             var discordURL = Environment.GetEnvironmentVariable("DiscordURL");
+            var tableName = Environment.GetEnvironmentVariable("TABLE_NAME");
 
             LambdaLogger.Log($"Function Ver.3.0\n");
 
-            // ëSHTMLÇì«Ç›çûÇ›
             LambdaLogger.Log($"Request for {pso2Url}\n");
             string html = (new HttpClient()).GetStringAsync(pso2Url).Result;
             LambdaLogger.Log($"Get html\n");
@@ -52,94 +43,56 @@ namespace PSO2emagPut
             doc.OptionCheckSyntax = false;
             doc.OptionFixNestedTags = true;
 
-            //ÉTÉCÉgëSëÃÇÃì«Ç›çûÇ›
             doc.LoadHtml(html);
 
-            PSO2EmagScraping emagScraping = new PSO2EmagScraping(doc);
+            PSO2EmagScraping emagScraping = new PSO2EmagScraping(doc,tableName);
 
             if (DebugFlag == "TRUE")
             {
-                LambdaLogger.Log("Debug TestÅ´" + "\n");
                 LambdaLogger.Log(emagScraping.DebugShowList2() + "\n");
                 return;
             }
 
             emagScraping.PutEmagList();
 
-            using (var client = new HttpClient())
+            if(false)
             {
-                LambdaLogger.Log("Discord Post Start \n");
-                var discordContent = JsonConvert.SerializeObject(new DiscordMessage(emagScraping.DebugShowList2()));
-                var stringContent = new StringContent(discordContent, Encoding.UTF8, "application/json");
-                var _ = client.PostAsync(discordURL, stringContent).Result;
-                LambdaLogger.Log("Discord Post Finish \n");
+                using (var client = new HttpClient())
+                {
+                    LambdaLogger.Log("Discord Post Start \n");
+                    var discordContent = JsonConvert.SerializeObject(new DiscordMessage(emagScraping.DebugShowList2()));
+                    var stringContent = new StringContent(discordContent, Encoding.UTF8, "application/json");
+                    var _ = client.PostAsync(discordURL, stringContent).Result;
+                    LambdaLogger.Log("Discord Post Finish \n");
+                }
             }
-
             LambdaLogger.Log("Exec Finish\n");
-        }
-
-        [DynamoDBTable("PSO2ema")]
-        public class TableValue
-        {
-            [DynamoDBHashKey]
-            [JsonProperty(PropertyName = "Key")] // yyyymmdd
-            public string Key { get; set; }
-
-            [DynamoDBRangeKey]
-            [JsonProperty(PropertyName = "RKey")] //hhmm
-            public string Rkey { get; set; }
-
-            [DynamoDBProperty("EvantName")]
-            [JsonProperty(PropertyName = "EventName")]
-            public string EventName { get; set; }
-
-            [DynamoDBProperty("EvantType")]
-            [JsonProperty(PropertyName = "EventType")]
-            public string EventType { get; set; }
-
-            [DynamoDBProperty("Month")]
-            [JsonProperty(PropertyName = "Month")]
-            public int Month { get; set; }
-
-            [DynamoDBProperty("Date")]
-            [JsonProperty(PropertyName = "Date")]
-            public int Date { get; set; }
-
-            [DynamoDBProperty("Hour")]
-            [JsonProperty(PropertyName = "Hour")]
-            public int Hour { get; set; }
-
-            [DynamoDBProperty("Minute")]
-            [JsonProperty(PropertyName = "Minute")]
-            public int Min { get; set; }
         }
 
         public class PSO2EmagScraping
         {
             private List<EmagTableValue> _table = new List<EmagTableValue>();
             private List<string> emaStrList = new List<string>();
+            private string _tableName;
 
-            public PSO2EmagScraping(HtmlDocument htmlDoc)
+            public PSO2EmagScraping(HtmlDocument htmlDoc,string tableName)
             {
                 LambdaLogger.Log("Excec PSO2EmagScraping Class");
+                this._tableName = tableName;
 
-                // ÉCÉxÉìÉgÉXÉPÉWÉÖÅ[ÉãïîÇÃíäèo
                 HtmlNodeCollection events = htmlDoc.DocumentNode.SelectNodes($"//div[@class='eventTable--event']");
                 foreach (HtmlNode eventNode in events)
                 {
                     var eveStr = new HtmlDocument();
                     eveStr.LoadHtml(eventNode.InnerHtml);
 
-                    // 24éûä‘ï™ÇÃÉ^ÉOÇíäèo
                     for (var i = 0; i < 24; i++)
                     {
                         var timeTagStr = $"{i:00}";
 
-                        // t0Xm00Ç»ÉmÅ[ÉhÉäÉXÉg
                         var hourNodes = eveStr.DocumentNode.SelectNodes($"//tr[@class='t{timeTagStr}m00']");
                         ScrapingHour(hourNodes, i, 0);
 
-                        // t0Xm30Ç»ÉmÅ[ÉhÉäÉXÉg
                         var harfHourNode = eveStr.DocumentNode.SelectNodes($"//tr[@class='t{timeTagStr}m30']");
                         ScrapingHour(harfHourNode, i, 30);
                     }
@@ -161,7 +114,6 @@ namespace PSO2emagPut
                 public string GetEventType() => _eventsType;
             }
 
-            // éûä‘É^ÉO(tHHmMM)Ç≤Ç∆Ç…èÓïÒÇï™äÑ
             public void ScrapingHour(HtmlNodeCollection hourNodes, int hour, int minute)
             {
                 foreach (var hourNode in hourNodes)
@@ -171,13 +123,12 @@ namespace PSO2emagPut
 
                     List<TagAndEvent> tagAndEventsList = new List<TagAndEvent>();
 
-                    tagAndEventsList.Add(new TagAndEvent(timeNode.DocumentNode.SelectNodes("//div[@class='cell-H01 cell-W01 event-emergency']"), "ãŸã}"));
-                    tagAndEventsList.Add(new TagAndEvent(timeNode.DocumentNode.SelectNodes("//div[@class='cell-H01 cell-W02 event-emergency']"), "ãŸã}"));
-                    // tagAndEventsList.Add(new TagAndEvent(timeNode.DocumentNode.SelectNodes("//div[@class='event-emergency']"), "ãŸã}")); Ç±ÇÍÇ™Ç≈Ç´Ç»Ç¢ÇÃÇ™Ç†ÇÍ
-                    tagAndEventsList.Add(new TagAndEvent(timeNode.DocumentNode.SelectNodes("//div[@class='cell-H01 cell-W01 event-live']"), "ÉâÉCÉu"));// ÉâÉCÉu
-                    tagAndEventsList.Add(new TagAndEvent(timeNode.DocumentNode.SelectNodes("//div[@class='cell-H06 cell-W01 event-casino']"), "ÉJÉWÉmÉCÉxÉìÉg"));// casino
-                    tagAndEventsList.Add(new TagAndEvent(timeNode.DocumentNode.SelectNodes("//div[@class='cell-H01 cell-W01 event-league']"), "ÉAÅ[ÉNÉXÉäÅ[ÉO"));// league
-                    tagAndEventsList.Add(new TagAndEvent(timeNode.DocumentNode.SelectNodes("//div[@class='cell-H01 cell-W02 event-league']"), "ÉAÅ[ÉNÉXÉäÅ[ÉO"));// league
+                    tagAndEventsList.Add(new TagAndEvent(timeNode.DocumentNode.SelectNodes("//div[@class='cell-H01 cell-W01 event-emergency']"), "Á∑äÊÄ•"));
+                    tagAndEventsList.Add(new TagAndEvent(timeNode.DocumentNode.SelectNodes("//div[@class='cell-H01 cell-W02 event-emergency']"), "Á∑äÊÄ•"));
+                    tagAndEventsList.Add(new TagAndEvent(timeNode.DocumentNode.SelectNodes("//div[@class='cell-H01 cell-W01 event-live']"), "„É©„Ç§„Éñ"));
+                    tagAndEventsList.Add(new TagAndEvent(timeNode.DocumentNode.SelectNodes("//div[@class='cell-H06 cell-W01 event-casino']"), "„Ç´„Ç∏„Éé„Ç§„Éô„É≥„Éà"));// casino
+                    tagAndEventsList.Add(new TagAndEvent(timeNode.DocumentNode.SelectNodes("//div[@class='cell-H01 cell-W01 event-league']"), "„Ç¢„Éº„ÇØ„Çπ„É™„Éº„Ç∞"));// league
+                    tagAndEventsList.Add(new TagAndEvent(timeNode.DocumentNode.SelectNodes("//div[@class='cell-H01 cell-W02 event-league']"), "„Ç¢„Éº„ÇØ„Çπ„É™„Éº„Ç∞"));// league
 
                     foreach (var tagAndEvent in tagAndEventsList)
                     {
@@ -189,7 +140,6 @@ namespace PSO2emagPut
                 }
             }
 
-            // äeÉCÉxÉìÉgÇéÊìæÇµÇƒÉäÉXÉgÇ÷
             private void ScrapingEvents(HtmlNodeCollection eventsNodes, int hour, int minute, string eventName)
             {
                 foreach (var enent in eventsNodes)
@@ -219,25 +169,39 @@ namespace PSO2emagPut
                         emagValue.EventName = n.InnerHtml.Replace('"', ' ');
                     }
 
-                    // îNìxïœçXê¸ëŒâû
-                    emagValue.Key = $"{OldYear}{emagValue.Month:00}{emagValue.Date:00}"; 
+                    emagValue.yyyymmdd = $"{CurrentYear}{emagValue.Month:00}{emagValue.Date:00}"; 
 
-                    emagValue.Rkey = $"{emagValue.Hour:00}{emagValue.Minute:00}{eventName}";
+                    emagValue.hhname = $"{emagValue.Hour:00}{emagValue.Minute:00}{eventName}";
                     _table.Add(emagValue);
 
-                    emaStrList.Add(emagValue.Key+ " : " + emagValue.EventName);
+                    emaStrList.Add(emagValue.yyyymmdd+ " : " + emagValue.EventName);
                 }
             }
 
-            // DynamoDB Ç÷ É|ÉXÉg
             public void PutEmagList()
             {
-                var input = _table;
-                var dbContext = new DynamoDBContext(Client);
+                var insertParams = _table;
+                var Client = new AmazonDynamoDBClient(RegionEndpoint.APNortheast1);
+                // var dbContext = new DynamoDBContext(Client);
 
-                foreach (var v in input)
+                foreach (var param in insertParams)
                 {
-                    var insertTask = dbContext.SaveAsync(v);
+                    var request = new PutItemRequest
+                    {
+                        TableName = _tableName,
+                        Item = new Dictionary<string, AttributeValue>()
+                        {
+                            { "yyyymmdd", new AttributeValue { S = param.yyyymmdd }},
+                            { "hhname", new AttributeValue { S = param.hhname }},
+                            { "EventName", new AttributeValue { S = param.EventName }},
+                            { "EventType", new AttributeValue { S = param.EventType }},
+                            { "Month", new AttributeValue { N = param.Month.ToString() }},
+                            { "Date", new AttributeValue { N = param.Date.ToString() }},
+                            { "Hour", new AttributeValue { N = param.Hour.ToString() }},
+                            { "Minute", new AttributeValue { N = param.Minute.ToString() }},
+                        }
+                    };
+                    var insertTask = Client.PutItemAsync(request);
                     insertTask.Wait();
                 }
             }
@@ -249,7 +213,7 @@ namespace PSO2emagPut
 
             public string DebugShowList2()
             {
-                string s = "ãŸã}ÉNÉGÉXÉgéÊìæÉoÉbÉ`åãâ  \n \n";
+                string s = "Á∑äÊÄ•„ÇØ„Ç®„Çπ„ÉàÂèñÂæó„Éê„ÉÉ„ÉÅÁµêÊûú \n \n";
                 foreach (var v in emaStrList)
                 {
                     s = s + v + " \n";
@@ -260,15 +224,14 @@ namespace PSO2emagPut
         }
     }
 
-    // ÉäÉNÉGÉXÉgJsonópÉNÉâÉX
-    [DynamoDBTable("PSO2ema")]
+    [DynamoDBTable("pso2_emergency_default")]
     public class EmagTableValue
     {
-        [JsonProperty(PropertyName = "Key")] // yyyymmddhhmm
-        public string Key { get; set; }
+        [JsonProperty(PropertyName = "yyyymmdd")] // yyyymmddhhmm
+        public string yyyymmdd { get; set; }
 
-        [JsonProperty(PropertyName = "RKey")] // hhmmEvent
-        public string Rkey { get; set; }
+        [JsonProperty(PropertyName = "hhname")] // hhmmEvent
+        public string hhname { get; set; }
 
         [JsonProperty(PropertyName = "EventName")]
         public string EventName { get; set; }
