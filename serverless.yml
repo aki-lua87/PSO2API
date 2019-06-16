@@ -16,22 +16,28 @@ package:
   artifact: bin/release/netcoreapp2.1/deploy-package.zip
 
 functions:
-  dummy: # ダミーのAPI
+  dummy:
     handler: CsharpHandlers::AwsDotnetCsharp.Handler::Hello
     events:
       - http:
-          path: "{proxy+}"
-          method: any
+          path: dummy
+          method: get
+  # CORS 手動でAWSコンソールより設定
   emergency_put:
     handler: CsharpHandlers::PSO2emagPut.Function::FunctionHandler
     environment:
       TABLE_NAME: ${self:custom.pso2emergencyDBname}
+    events:
+      - schedule: cron(30 7 ? * WED *)
+      - schedule: cron(5 15 ? * * *)
   coat_of_arms_put:
     handler: CsharpHandlers::PSO2CoatOfArms.Function::FunctionHandler
     environment:
       TABLE_NAME: ${self:custom.pso2commonDBname}
+    events:
+      - schedule: cron(30 7 ? * WED *)
+      - schedule: cron(5 15 ? * * *)
 
-# Cloud Formation resources
 resources:
   Resources:
     pso2commonDB:
@@ -62,16 +68,23 @@ resources:
         - AttributeName: hhname
           KeyType: RANGE
         ProvisionedThroughput:
-          ReadCapacityUnits: 3
+          ReadCapacityUnits: 5
           WriteCapacityUnits: 1
-    # PSO2緊急API
-    emergencyResource:
+    apiRootResource:
       Type: AWS::ApiGateway::Resource
       Properties:
         ParentId:
           Fn::GetAtt:
             - ApiGatewayRestApi
             - RootResourceId
+        PathPart: api
+        RestApiId:
+          Ref: ApiGatewayRestApi
+    emergencyResource:
+      Type: AWS::ApiGateway::Resource
+      Properties:
+        ParentId:
+          Ref: apiRootResource
         PathPart: emergency
         RestApiId:
           Ref: ApiGatewayRestApi
@@ -133,25 +146,22 @@ resources:
                     #end
                   ]
               StatusCode: 200
-    # PSO2紋章API
-    coat_of_armsResource:
+    coatofarmsResource:
       Type: AWS::ApiGateway::Resource
       Properties:
         ParentId:
-          Fn::GetAtt:
-            - ApiGatewayRestApi
-            - RootResourceId
+          Ref: apiRootResource
         PathPart: coat_of_arms
         RestApiId:
           Ref: ApiGatewayRestApi
-    coat_of_armsMethod:
+    coatofarmsMethod:
       Type: AWS::ApiGateway::Method
       Properties:
         ResourceId:
-          Ref: coat_of_armsResource
+          Ref: coatofarmsResource
         RestApiId:
           Ref: ApiGatewayRestApi
-        HttpMethod: POST
+        HttpMethod: GET
         AuthorizationType: NONE
         MethodResponses:
           - StatusCode: 200
@@ -159,4 +169,23 @@ resources:
           Type: AWS
           Credentials: ${self:custom.setting.credentials_role}
           IntegrationHttpMethod: POST
-          Uri: arn:aws:apigateway:${self:provider.region}:dynamodb:action/Query
+          Uri: arn:aws:apigateway:${self:provider.region}:dynamodb:action/GetItem
+          RequestTemplates: 
+            "application/json": |
+              {
+                "TableName": "${self:custom.pso2commonDBname}",
+                "Key": { 
+                  "keyName": {
+                    "S": "PSO2CoatOfArms"
+                  }
+                }
+              }
+          IntegrationResponses: 
+            - ResponseTemplates: 
+                "application/json": |
+                  #set($item = $input.path('$.Item'))
+                  {
+                    "UpdateTime": "$item.UpdateTime.S",
+                    "TargetList": $item.StringList.SS
+                  }
+              StatusCode: 200
