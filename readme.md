@@ -9,7 +9,7 @@
 ## API
 
 ### 詳細ドキュメント
-https://aki-lua87.github.io/PSO2emaAPI/doc/index.html
+https://aki-lua87.github.io/PSO2API/doc/index.html
 
 ### 簡易ドキュメント
 ```
