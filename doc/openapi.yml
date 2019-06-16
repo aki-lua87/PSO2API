@@ -8,7 +8,7 @@ servers:
   - url: https://pso2.akakitune87.net
 
 paths:
-  /api/emergency:
+  api/emergency:
     post:
       tags: 
         - pso2
@@ -42,7 +42,7 @@ paths:
                     Date: 24
                     Hour: 7
                     Minute: 30
-  /api/coat_of_arms:
+  api/coat_of_arms:
     get:
       tags: 
         - pso2
