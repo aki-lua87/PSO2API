@@ -16,11 +16,30 @@ https://aki-lua87.github.io/PSO2API/doc/index.html
 緊急クエスト 
 URL: https://pso2.akakitune87.net/api/emergency
 method: post
-param: 
+request param: 
 {
   "EventDate":"20190616",
   "EventType":"緊急"
 }
+response:
+[
+  {
+    "Month": 6,
+    "Date": 17,
+    "Hour": 2,
+    "Minute": 0,
+    "EventName": "魔神城戦：不尽の狂気",
+    "EventType": "緊急"
+  },      
+  {
+    "Month": 6,
+    "Date": 17,
+    "Hour": 7,
+    "Minute": 0,
+    "EventName": "終の艦隊迎撃戦",
+    "EventType": "緊急"
+  }
+]
 
 紋章キャンペーン
 https://pso2.akakitune87.net/api/coat_of_arms

@@ -84,6 +84,11 @@ components:
           type: string
         EventType:
           type: string
+          enum:
+            - 緊急
+            - ライブ
+            - カジノイベント
+            - アークスリーグ
     emRes: 
       type: object 
       required: 
