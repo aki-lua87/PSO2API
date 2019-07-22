@@ -13,6 +13,9 @@ using Amazon.DynamoDBv2.DataModel;
 using Amazon.Lambda.Core;
 using HtmlAgilityPack;
 using Newtonsoft.Json;
+using Amazon.XRay.Recorder.Core;
+using Amazon.XRay.Recorder.Handlers.AwsSdk;
+using Amazon.XRay.Recorder.Handlers.System.Net;
 
 namespace PSO2emagPut
 {
@@ -24,6 +27,8 @@ namespace PSO2emagPut
 
         public void FunctionHandler()
         {
+            AWSSDKHandler.RegisterXRayForAllServices();
+
             LambdaLogger.Log("Function Start\n");
 
             string DebugFlag = Environment.GetEnvironmentVariable("DebugFlag");
@@ -35,7 +40,7 @@ namespace PSO2emagPut
             LambdaLogger.Log($"Function Ver.3.0\n");
 
             LambdaLogger.Log($"Request for {pso2Url}\n");
-            string html = (new HttpClient()).GetStringAsync(pso2Url).Result;
+            string html = (new HttpClient(new HttpClientXRayTracingHandler(new HttpClientHandler()))).GetStringAsync(pso2Url).Result;
             LambdaLogger.Log($"Get html\n");
 
             var doc = new HtmlDocument();
@@ -183,7 +188,7 @@ namespace PSO2emagPut
                 var insertParams = _table;
                 var Client = new AmazonDynamoDBClient(RegionEndpoint.APNortheast1);
                 // var dbContext = new DynamoDBContext(Client);
-
+                
                 foreach (var param in insertParams)
                 {
                     var request = new PutItemRequest

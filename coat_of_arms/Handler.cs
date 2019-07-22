@@ -12,6 +12,9 @@ using Amazon.DynamoDBv2.DataModel;
 using Amazon.Lambda.Core;
 using HtmlAgilityPack;
 using Newtonsoft.Json;
+using Amazon.XRay.Recorder.Core;
+using Amazon.XRay.Recorder.Handlers.AwsSdk;
+using Amazon.XRay.Recorder.Handlers.System.Net;
 
 namespace PSO2CoatOfArms
 {
@@ -25,6 +28,8 @@ namespace PSO2CoatOfArms
         {
             try
             {
+                AWSSDKHandler.RegisterXRayForAllServices();
+
                 var discordURL = Environment.GetEnvironmentVariable("DiscordURL");
                 var tableName = Environment.GetEnvironmentVariable("TABLE_NAME");
 
@@ -34,7 +39,7 @@ namespace PSO2CoatOfArms
                 var dbContents = new TableValue();
                 dbContents.ProjectName = projectName;
 
-                var html = (new HttpClient()).GetStringAsync(pso2Url).Result;
+                var html = (new HttpClient(new HttpClientXRayTracingHandler(new HttpClientHandler()))).GetStringAsync(pso2Url).Result;
 
                 var doc = new HtmlDocument();
                 doc.OptionAutoCloseOnEnd = false;

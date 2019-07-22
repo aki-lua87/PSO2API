@@ -11,6 +11,9 @@ provider:
   runtime: dotnetcore2.1
   region: ap-northeast-1
   role: ${self:custom.setting.lambda_role}
+  tracing:
+    apiGateway: true
+    lambda: true
 
 package:
   artifact: bin/release/netcoreapp2.1/deploy-package.zip
@@ -20,8 +23,11 @@ functions:
     handler: CsharpHandlers::AwsDotnetCsharp.Handler::Hello
     events:
       - http:
-          path: dummy
-          method: get
+          path: /{proxy+}
+          method: any
+      - http:
+          path: /
+          method: any
   # CORS 手動でAWSコンソールより設定
   emergency_put:
     handler: CsharpHandlers::PSO2emagPut.Function::FunctionHandler
