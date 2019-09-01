@@ -52,19 +52,7 @@ paths:
           content:
             application/json:
               schema: 
-                type: array
-                items:
-                  $ref: '#/components/schemas/coaRes'
-                example: 
-                  - UpdateTime: 新世を成す幻創の造神
-                    TargetList: 
-                      - PSO2』と連動した『PSO2es』でクイック探索を1回行う
-                      - いずれかの「フリーフィールド」を3回クリア
-                      - いずれかの「フリーフィールド」を5回クリア
-                      - ゲームに3日ログインする
-                      - ランクマッチ「エンブレム争奪戦」を1回クリア
-                      - 緊急クエスト「終の艦隊迎撃戦」の「艦隊迎撃戦：敵旗艦突撃」または「艦隊迎撃戦：戦艦撃破」を1回クリア
-                      - 緊急クエスト「終の艦隊迎撃戦」の「艦隊迎撃戦：敵旗艦突撃」または「艦隊迎撃戦：戦艦撃破」を合計3回クリア
+                $ref: '#/components/schemas/coaRes'
 
 components:
   schemas: 
@@ -75,6 +63,17 @@ components:
           type: string
         TargetList:
           type: array
+      example: 
+      - UpdateTime: "8/31/19 3:05:49 PM"
+        TargetList: 
+          - PSO2』と連動した『PSO2es』でクイック探索を1回行う
+          - いずれかの「フリーフィールド」を3回クリア
+          - いずれかの「フリーフィールド」を5回クリア
+          - ゲームに3日ログインする
+          - ランクマッチ「エンブレム争奪戦」を1回クリア
+          - 緊急クエスト「終の艦隊迎撃戦」の「艦隊迎撃戦：敵旗艦突撃」または「艦隊迎撃戦：戦艦撃破」を1回クリア
+          - 緊急クエスト「終の艦隊迎撃戦」の「艦隊迎撃戦：敵旗艦突撃」または「艦隊迎撃戦：戦艦撃破」を合計3回クリア
+
     emReq:
       type: object 
       required: 
