@@ -175,7 +175,7 @@ resources:
           - StatusCode: 200
         Integration:
           Type: AWS
-          Credentials: ${self:custom.setting.credentials_role}
+          Credentials: ${env:API_IAM}
           IntegrationHttpMethod: POST
           Uri: arn:aws:apigateway:${self:provider.region}:dynamodb:action/GetItem
           RequestTemplates: 
