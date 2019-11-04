@@ -11,6 +11,5 @@ phases:
       - serverless -v 
   build:
     commands:
-      - dotnet restore
       - dotnet lambda package --configuration release --framework netcoreapp2.2 --output-package bin/release/netcoreapp2.1/deploy-package.zip
       - serverless deploy --stage $target 
