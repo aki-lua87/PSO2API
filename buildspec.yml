@@ -1,0 +1,15 @@
+version: 0.2
+
+phases:
+  install:
+    runtime-versions:
+      NodeJS: 10
+      dotnet: 2.2
+    commands:
+      - yarn --version
+      - yarn global add serverless
+      - serverless -v 
+  build:
+    commands:
+      - ./build.sh
+      - serverless deploy --stage $target 
