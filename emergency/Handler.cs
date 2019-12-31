@@ -22,7 +22,7 @@ namespace PSO2emagPut
     public class Function
     {
         const string pso2Url = "https://pso2.jp/players/boost/";
-        const int CurrentYear = 2019;
+        const int CurrentYear = 2020;
         const int NextYear = CurrentYear + 1;
 
         public void FunctionHandler()
