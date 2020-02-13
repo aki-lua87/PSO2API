@@ -22,7 +22,7 @@ namespace PSO2CoatOfArms
     {
         const string projectName = "PSO2CoatOfArms";
         // 勇者の紋章URL
-        const string pso2Url = "http://pso2.jp/players/news/i_yget/";
+        const string pso2Url = "http://pso2.jp/players/news/i_kget/";
 
         public bool FunctionHandler()
         {
