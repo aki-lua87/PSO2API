@@ -3,8 +3,11 @@
 [![HitCount](http://hits.dwyl.io/aki-lua87/PSO2emaAPI.svg)](http://hits.dwyl.io/aki-lua87/PSO2emaAPI)
 
 ## 説明
-公式サイトを解析しAPIとして変換するプログラムです。  
+公式サイト(https://pso2.jp/players/boost/)を解析しAPIとして変換するプログラムです。  
 毎週、水曜日の16:30(JST)頃に解析を行い、データを更新しています。  
+
+※日本国内向けサービスのみを対象としてます
+This api is target for japanese service
 
 ## API
 
