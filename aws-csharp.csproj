@@ -14,9 +14,5 @@
     <PackageReference Include="AWSXRayRecorder" Version="2.7.2" />
     <PackageReference Include="HtmlAgilityPack" Version="1.8.4" />
   </ItemGroup>
-
-  <ItemGroup>
-    <DotNetCliToolReference Include="Amazon.Lambda.Tools" Version="4.0.0" />
-  </ItemGroup>
-
+  
 </Project>
