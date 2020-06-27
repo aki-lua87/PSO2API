@@ -3,14 +3,15 @@ version: 0.2
 phases:
   install:
     runtime-versions:
-      nodejs: 10
-      dotnet: 2.2
+      nodejs: 12
+      dotnet: 3.1
     commands:
       - yarn --version
       - yarn global add serverless
       - serverless -v 
   build:
     commands:
+      - dotnet tool install -g Amazon.Lambda.Tools
       - dotnet restore
-      - dotnet lambda package --configuration release --framework netcoreapp2.1 --output-package bin/release/netcoreapp2.1/deploy-package.zip
+      - dotnet lambda package --configuration release --framework netcoreapp3.1 --output-package bin/release/deploy-package.zip
       - serverless deploy --stage $target 

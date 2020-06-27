@@ -22,8 +22,8 @@ namespace PSO2emagPut
     public class Function
     {
         const string pso2Url = "https://pso2.jp/players/boost/";
-        const int CurrentYear = 2020;
-        const int NextYear = CurrentYear + 1;
+
+
 
         public void FunctionHandler()
         {
@@ -34,7 +34,6 @@ namespace PSO2emagPut
             string DebugFlag = Environment.GetEnvironmentVariable("DebugFlag");
             LambdaLogger.Log($"Debug {DebugFlag}\n");
 
-            var discordURL = Environment.GetEnvironmentVariable("DiscordURL");
             var tableName = Environment.GetEnvironmentVariable("TABLE_NAME");
 
             LambdaLogger.Log($"Function Ver.3.0\n");
@@ -50,7 +49,7 @@ namespace PSO2emagPut
 
             doc.LoadHtml(html);
 
-            PSO2EmagScraping emagScraping = new PSO2EmagScraping(doc,tableName);
+            PSO2EmagScraping emagScraping = new PSO2EmagScraping(doc, tableName);
 
             if (DebugFlag == "TRUE")
             {
@@ -60,17 +59,6 @@ namespace PSO2emagPut
 
             emagScraping.PutEmagList();
 
-            if(false)
-            {
-                using (var client = new HttpClient())
-                {
-                    LambdaLogger.Log("Discord Post Start \n");
-                    var discordContent = JsonConvert.SerializeObject(new DiscordMessage(emagScraping.DebugShowList2()));
-                    var stringContent = new StringContent(discordContent, Encoding.UTF8, "application/json");
-                    var _ = client.PostAsync(discordURL, stringContent).Result;
-                    LambdaLogger.Log("Discord Post Finish \n");
-                }
-            }
             LambdaLogger.Log("Exec Finish\n");
         }
 
@@ -80,10 +68,16 @@ namespace PSO2emagPut
             private List<string> emaStrList = new List<string>();
             private string _tableName;
 
-            public PSO2EmagScraping(HtmlDocument htmlDoc,string tableName)
+            private int CurrentYear;
+            private int NextYear;
+
+            public PSO2EmagScraping(HtmlDocument htmlDoc, string tableName)
             {
                 LambdaLogger.Log("Excec PSO2EmagScraping Class");
                 this._tableName = tableName;
+
+                this.CurrentYear = System.DateTime.Now.Year;
+                this.NextYear = CurrentYear + 1;
 
                 HtmlNodeCollection events = htmlDoc.DocumentNode.SelectNodes($"//div[@class='eventTable--event']");
                 foreach (HtmlNode eventNode in events)
@@ -147,6 +141,9 @@ namespace PSO2emagPut
 
             private void ScrapingEvents(HtmlNodeCollection eventsNodes, int hour, int minute, string eventName)
             {
+                var isExist12 = false;
+                var isExist1 = false;
+
                 foreach (var enent in eventsNodes)
                 {
                     var emagValue = new EmagTableValue
@@ -165,6 +162,16 @@ namespace PSO2emagPut
                         var monthAndDate = t.InnerHtml.Split('/');
                         emagValue.Month = int.Parse(monthAndDate[0]);
                         emagValue.Date = int.Parse(monthAndDate[1]);
+
+                        // 年度更新チェック
+                        if (emagValue.Month == 12)
+                        {
+                            isExist12 = true;
+                        }
+                        else if (emagValue.Month == 1)
+                        {
+                            isExist1 = true;
+                        }
                     }
 
 
@@ -174,12 +181,20 @@ namespace PSO2emagPut
                         emagValue.EventName = n.InnerHtml.Replace('"', ' ');
                     }
 
-                    emagValue.yyyymmdd = $"{CurrentYear}{emagValue.Month:00}{emagValue.Date:00}"; 
+                    // 年度インクリメントチェック
+                    if (isExist12 && isExist1)
+                    {
+                        emagValue.yyyymmdd = $"{NextYear}{emagValue.Month:00}{emagValue.Date:00}";
+                    }
+                    else
+                    {
+                        emagValue.yyyymmdd = $"{CurrentYear}{emagValue.Month:00}{emagValue.Date:00}";
+                    }
 
                     emagValue.hhname = $"{emagValue.Hour:00}{emagValue.Minute:00}{eventName}";
                     _table.Add(emagValue);
 
-                    emaStrList.Add(emagValue.yyyymmdd+ " : " + emagValue.EventName);
+                    emaStrList.Add(emagValue.yyyymmdd + " : " + emagValue.EventName);
                 }
             }
 
@@ -188,7 +203,7 @@ namespace PSO2emagPut
                 var insertParams = _table;
                 var Client = new AmazonDynamoDBClient(RegionEndpoint.APNortheast1);
                 // var dbContext = new DynamoDBContext(Client);
-                
+
                 foreach (var param in insertParams)
                 {
                     var request = new PutItemRequest
