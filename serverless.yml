@@ -15,7 +15,7 @@ provider:
     lambda: true
 
 package:
-  artifact: bin/release/netcoreapp2.1/deploy-package.zip
+  artifact: bin/release/deploy-package.zip
 
 functions:
   dummy:
