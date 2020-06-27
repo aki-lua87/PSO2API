@@ -23,8 +23,7 @@ namespace PSO2emagPut
     {
         const string pso2Url = "https://pso2.jp/players/boost/";
 
-        const int CurrentYear = System.DateTime.Now.Year;
-        const int NextYear = CurrentYear + 1;
+
 
         public void FunctionHandler()
         {
@@ -69,10 +68,16 @@ namespace PSO2emagPut
             private List<string> emaStrList = new List<string>();
             private string _tableName;
 
+            private int CurrentYear;
+            private int NextYear;
+
             public PSO2EmagScraping(HtmlDocument htmlDoc, string tableName)
             {
                 LambdaLogger.Log("Excec PSO2EmagScraping Class");
                 this._tableName = tableName;
+
+                this.CurrentYear = System.DateTime.Now.Year;
+                this.NextYear = CurrentYear + 1;
 
                 HtmlNodeCollection events = htmlDoc.DocumentNode.SelectNodes($"//div[@class='eventTable--event']");
                 foreach (HtmlNode eventNode in events)
