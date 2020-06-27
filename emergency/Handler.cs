@@ -38,7 +38,6 @@ namespace PSO2emagPut
             string DebugFlag = Environment.GetEnvironmentVariable("DebugFlag");
             LambdaLogger.Log($"Debug {DebugFlag}\n");
 
-            var discordURL = Environment.GetEnvironmentVariable("DiscordURL");
             var tableName = Environment.GetEnvironmentVariable("TABLE_NAME");
 
             LambdaLogger.Log($"Function Ver.3.0\n");
@@ -64,17 +63,6 @@ namespace PSO2emagPut
 
             emagScraping.PutEmagList();
 
-            if (false)
-            {
-                using (var client = new HttpClient())
-                {
-                    LambdaLogger.Log("Discord Post Start \n");
-                    var discordContent = JsonConvert.SerializeObject(new DiscordMessage(emagScraping.DebugShowList2()));
-                    var stringContent = new StringContent(discordContent, Encoding.UTF8, "application/json");
-                    var _ = client.PostAsync(discordURL, stringContent).Result;
-                    LambdaLogger.Log("Discord Post Finish \n");
-                }
-            }
             LambdaLogger.Log("Exec Finish\n");
         }
 
