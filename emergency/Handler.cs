@@ -22,15 +22,12 @@ namespace PSO2emagPut
     public class Function
     {
         const string pso2Url = "https://pso2.jp/players/boost/";
-        int CurrentYear;
-        int NextYear;
+
+        const int CurrentYear = System.DateTime.Now.Year;
+        const int NextYear = CurrentYear + 1;
 
         public void FunctionHandler()
         {
-            DateTime dNow = System.DateTime.Now;
-            CurrentYear = dNow.Year;
-            NextYear = CurrentYear + 1;
-
             AWSSDKHandler.RegisterXRayForAllServices();
 
             LambdaLogger.Log("Function Start\n");
@@ -160,13 +157,13 @@ namespace PSO2emagPut
                         var monthAndDate = t.InnerHtml.Split('/');
                         emagValue.Month = int.Parse(monthAndDate[0]);
                         emagValue.Date = int.Parse(monthAndDate[1]);
-                        
+
                         // 年度更新チェック
-                        if(emagValue.Month == 12)
+                        if (emagValue.Month == 12)
                         {
                             isExist12 = true;
                         }
-                        else if(emagValue.Month == 1)
+                        else if (emagValue.Month == 1)
                         {
                             isExist1 = true;
                         }
@@ -182,7 +179,7 @@ namespace PSO2emagPut
                     // 年度インクリメントチェック
                     if (isExist12 && isExist1)
                     {
-                        emagValue.yyyymmdd = $"{NextYear}{emagValue.Month:00}{emagValue.Date:00}"; 
+                        emagValue.yyyymmdd = $"{NextYear}{emagValue.Month:00}{emagValue.Date:00}";
                     }
                     else
                     {
